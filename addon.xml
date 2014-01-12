@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.spurs-tv" name="Spurs TV" version="0.0.5" provider-name="Leopold">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+    <import addon="script.module.xbmcswift2" version="2.4.0" optional="false"/>
+    <import addon="script.module.beautifulsoup4" version="4.3.1" optional="false"/>
+    <import addon="script.module.html5lib" version="0.999.0" optional="false"/>
+    <import addon="script.module.requests2" version="2.2.1" optional="false"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="addon.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <platform>all</platform>
+    <language>en</language>
+    <summary>Watch videos from Spurs TV Online</summary>
+    <description>This video plugin provides access to the latest Tottenham Hotspur highlights, exclusive interviews, and more.</description>
+    <website>http://www.tottenhamhotspur.com/spurs-tv/</website>
+    <source>https://github.com/LS80/plugin.video.spurs-tv.git</source>
+    <license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
+  </extension>
+</addon>

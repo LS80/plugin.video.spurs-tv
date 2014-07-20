@@ -26,7 +26,10 @@ import time
 
 from xbmcswift2 import Plugin
 from bs4 import BeautifulSoup
-import requests2 as requests
+try:
+    import requests2 as requests
+except ImportError:
+    import requests
 
 
 HOST = "http://m.tottenhamhotspur.com"
@@ -118,10 +121,10 @@ def video_item(entry_id, title, date_str, date_format="%d %B %Y", duration_str=N
 
 def get_videos(soup, category):
     page, links = get_page_links(soup, 'show_video_list', category=category)
-    for page_link in links: 
+    for page_link in links:
         yield page_link
     
-    if category == 'latest' or page == 1:
+    if category == 'latest' or category.startswith('tour') or page == 1:
         featured_video = soup.find('div', 'video')
     
         featured_entry_id = featured_video['data-videoid']
@@ -159,6 +162,9 @@ def get_search_result_videos(soup, query):
 def get_categories():
     soup = get_soup(BASE_URL)
     
+    yield {'label': "Tour 2014",
+           'path': plugin.url_for('show_video_list', category='tour2014')}
+    
     yield {'label': "Latest",
            'path': plugin.url_for('show_video_list', category='latest')}
 
@@ -181,8 +187,10 @@ def index():
 def show_video_list(category):
     if category == 'latest':
         url = BASE_URL
+    elif category.startswith('tour'):
+        url = urljoin(HOST, category + '/spurs-tv/')
     else: 
-        url = urljoin(BASE_URL, category) + '/'
+        url = urljoin(BASE_URL, category + '/')
         
     if 'navigate' in plugin.request.args:
         navigate = plugin.request.args['navigate'][0]

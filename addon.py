@@ -33,8 +33,8 @@ except ImportError:
 
 
 HOST = "http://m.tottenhamhotspur.com"
-BASE_URL = HOST + "/spurs-tv/"
-SEARCH_URL = HOST + "/search/"
+BASE_URL = HOST
+SEARCH_URL = urljoin(HOST, "search")
 PARTNER_ID = 2000012
 
 ENTRY_ID_RE = re.compile("entry_id/(\w+)/")
@@ -71,6 +71,8 @@ plugin = Plugin()
 form_data = plugin.get_storage('form_data')
 
 def get_soup(url, data=None):
+    if not url.endswith('/'):
+        url += '/'
     if data is not None:
         response = requests.post(url, data, headers=HEADERS)
     else:
@@ -126,12 +128,12 @@ def video_item(entry_id, title, date_str, date_format="%d %B %Y", duration_str=N
         
     return item
 
-def get_videos(soup, category):
-    page, links = get_page_links(soup, 'show_video_list', category=category)
+def get_videos(soup, path):
+    page, links = get_page_links(soup, 'show_video_list', path=path)
     for page_link in links:
         yield page_link
     
-    if category == 'latest' or category.startswith('tour') or page == 1:
+    if page is None or page == 1:
         featured_video = soup.find('div', 'video')
     
         featured_entry_id = featured_video['data-videoid']
@@ -176,39 +178,36 @@ def get_search_result_videos(soup, query):
         
     form_data['viewstate'] = get_viewstate(soup)
         
-def get_categories():
-    soup = get_soup(BASE_URL)
-    
-    yield {'label': "Tour 2014",
-           'path': plugin.url_for('show_video_list', category='tour2014')}
-    
-    yield {'label': "Latest",
-           'path': plugin.url_for('show_video_list', category='latest')}
+def get_categories(path):
+    yield {'label': "Latest", 'path': plugin.url_for('show_video_list', path=path)}
 
-    yield {'label': "Search",
-           'path': plugin.url_for('search')}
+    if path == "spurs-tv":
+        yield {'label': "Search", 'path': plugin.url_for('search')}
+
+    url = urljoin(HOST, path)
+    soup = get_soup(url)
+    for a in soup.find('map', id='inside-nav')('a'):
+        title = a['title']
+        if title == 'Spurs TV Help':
+            break
+
+        href = a['href'].strip('/')
+        if href.endswith("spurs-tv"):
+            plugin_path = plugin.url_for('show_categories', path=href)
+        else:
+            plugin_path = plugin.url_for('show_video_list', path=href)
+
+        yield {'label': title, 'path': plugin_path}
+
+
+@plugin.route('/', name='index', options={'path': "spurs-tv"})
+@plugin.route('/path/<path>')
+def show_categories(path):
+    return get_categories(path)
     
-    for a in soup.find('map', id='inside-nav')('a')[1:-3]:
-        category = a['title']
-        path = os.path.basename(os.path.normpath(a['href']))
-        yield {'label': category,
-               'path': plugin.url_for('show_video_list', category=path)}
-
-
-
-@plugin.route('/')
-def index():
-    return get_categories()
-    
-@plugin.route('/category/<category>')
-def show_video_list(category):
-    if category == 'latest':
-        url = BASE_URL
-    elif category.startswith('tour'):
-        url = urljoin(HOST, category + '/spurs-tv/')
-    else: 
-        url = urljoin(BASE_URL, category + '/')
-        
+@plugin.route('/videos/path/<path>')
+def show_video_list(path):
+    url = urljoin(BASE_URL, path)
     if 'navigate' in plugin.request.args:
         navigate = plugin.request.args['navigate'][0]
         viewstate = form_data['viewstate']
@@ -220,7 +219,7 @@ def show_video_list(category):
         soup = get_soup(url)
         update_listing = False
 
-    return plugin.finish(get_videos(soup, category),
+    return plugin.finish(get_videos(soup, path),
                          sort_methods=['playlist_order', 'date', 'duration', 'title'],
                          update_listing=update_listing)
 

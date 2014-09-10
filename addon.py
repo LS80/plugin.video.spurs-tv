@@ -35,19 +35,24 @@ except ImportError:
 HOST = "http://m.tottenhamhotspur.com"
 BASE_URL = HOST + "/spurs-tv/"
 SEARCH_URL = HOST + "/search/"
+PARTNER_ID = 2000012
 
 ENTRY_ID_RE = re.compile("entry_id/(\w+)/")
 PAGE_RE = re.compile("page +(\d+) +of +(\d+)")
 
 MEDIA_SCHEME = "http"
 MEDIA_HOST = "mmp.streamuk.com"
-MEDIA_URL_ROOT = urlunparse((MEDIA_SCHEME, MEDIA_HOST, "/p/2000012/", None, None, None))
+MEDIA_URL_ROOT = urlunparse((MEDIA_SCHEME, MEDIA_HOST, "/p/{}/".format(PARTNER_ID), None, None, None))
 
 THUMB_URL_FMT = MEDIA_URL_ROOT + "thumbnail/entry_id/{}/width/{}/"
 
 MANIFEST_XML_FMT = (MEDIA_URL_ROOT +
                     "playManifest/entryId/{}/format/rtmp/a.f4m?referrer=" +
                     BASE_URL.encode('base-64'))
+
+PLAYLIST_XML_FMT = urlunparse((MEDIA_SCHEME, MEDIA_HOST,
+                               "index.php/partnerservices2/executeplaylist?" +
+                               "partner_id={}&playlist_id={{}}".format(PARTNER_ID), None, None, None))
 
 FIELD_NAME_ROOT_FMT = ("ctl00$ContentPlaceHolder1$DropZoneMainContent$columnDisplay$"
                        "ctl00$controlcolumn$ctl{:02d}$WidgetHost$WidgetHost_widget$")
@@ -100,7 +105,7 @@ def get_page_links(soup, endpoint, **kwargs):
 
     return page, links
         
-def video_item(entry_id, title, date_str, date_format="%d %B %Y", duration_str=None):
+def video_item(entry_id, title, date_str, date_format="%d %B %Y", duration_str=None, duration=None):
     video_date = date(*(time.strptime(date_str, date_format)[0:3]))
 
     item = {'label': title,
@@ -112,7 +117,9 @@ def video_item(entry_id, title, date_str, date_format="%d %B %Y", duration_str=N
                     },
             }
     
-    if duration_str is not None:
+    if duration is not None:
+        item['stream_info'] = {'video': {'duration': duration}}
+    elif duration_str is not None:
         minutes, seconds = duration_str.split(':')
         duration = timedelta(minutes=int(minutes), seconds=int(seconds))
         item['stream_info'] = {'video': {'duration': duration.seconds}}
@@ -144,7 +151,17 @@ def get_videos(soup, category):
         yield video_item(entry_id, title, date_str, duration_str=duration_str)
 
     form_data['viewstate'] = get_viewstate(soup)
-    
+
+def get_playlist_videos(playlist_id):
+    playlist_url = PLAYLIST_XML_FMT.format(playlist_id)
+    xml = requests.get(playlist_url).text
+    for entry in BeautifulSoup(xml, 'html5lib').entries:
+        entry_id = entry.id.string
+        title = entry.find('name').string
+        date_str = entry.createdat.string.split()[0]
+        yield video_item(entry_id, title, date_str, date_format="%Y-%m-%d",
+                         duration=entry.duration.string)
+
 def get_search_result_videos(soup, query):
     page, links = get_page_links(soup, 'search_result', query=query)
     for page_link in links:
@@ -206,7 +223,12 @@ def show_video_list(category):
     return plugin.finish(get_videos(soup, category),
                          sort_methods=['playlist_order', 'date', 'duration', 'title'],
                          update_listing=update_listing)
-    
+
+@plugin.route('/playlist/<playlist_id>')
+def show_playlist(playlist_id):
+    return plugin.finish(get_playlist_videos(playlist_id),
+                         sort_methods=['playlist_order', 'date', 'duration', 'title'])
+
 @plugin.route('/search')
 def search():
     query = plugin.keyboard(heading="Search")

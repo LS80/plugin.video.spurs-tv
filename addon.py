@@ -32,7 +32,7 @@ except ImportError:
     import requests
 
 
-HOST = "http://m.tottenhamhotspur.com"
+HOST = "http://www.tottenhamhotspur.com"
 BASE_URL = HOST
 SEARCH_URL = urljoin(HOST, "search")
 PARTNER_ID = 2000012
@@ -196,16 +196,31 @@ def get_categories(path):
             plugin_path = plugin.url_for('show_categories', path=href)
         elif title == "Ledley King Testimonial":
             plugin_path = plugin.url_for('show_playlist', playlist_id='0_2nmzot3u')
+        elif 'children' in a.parent['class']:
+            plugin_path = plugin.url_for('show_subcategories', path=href)
         else:
             plugin_path = plugin.url_for('show_video_list', path=href)
 
         yield {'label': title, 'path': plugin_path}
+
+def get_subcategories(path):
+    yield {'label': "All", 'path': plugin.url_for('show_video_list', path=path)}
+
+    url = urljoin(HOST, path)
+    soup = get_soup(url)
+    for li in soup.find('li', 'active')('li'):
+        yield {'label': li.a['title'],
+               'path': plugin.url_for('show_video_list', path=li.a['href'].strip('/'))}
 
 
 @plugin.route('/', name='index', options={'path': "spurs-tv"})
 @plugin.route('/path/<path>')
 def show_categories(path):
     return get_categories(path)
+
+@plugin.route('/path/<path>/subcategories')
+def show_subcategories(path):
+    return plugin.finish(get_subcategories(path))
     
 @plugin.route('/videos/path/<path>')
 def show_video_list(path):

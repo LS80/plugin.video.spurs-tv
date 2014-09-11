@@ -1,0 +1,7 @@
+0.2.0
+ - Added Tour 2014 video categories
+ - Added Highlights subcategories
+ - Added Ledley King Testimonial videos 
+
+0.1.0
+ - Initial release

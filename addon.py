@@ -26,10 +26,7 @@ import time
 
 from xbmcswift2 import Plugin
 from bs4 import BeautifulSoup
-try:
-    import requests2 as requests
-except ImportError:
-    import requests
+import requests
 
 
 HOST = "http://www.tottenhamhotspur.com"

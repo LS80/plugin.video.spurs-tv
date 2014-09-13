@@ -205,16 +205,22 @@ def get_categories(path):
             break
 
         href = a['href'].strip('/')
+        playable = False
         if href.endswith("spurs-tv"):
             plugin_path = plugin.url_for('show_categories', path=href)
         elif title == "Ledley King Testimonial":
             plugin_path = plugin.url_for('show_playlist', playlist_id='0_2nmzot3u')
+        elif title == "Live Audio Commentary":
+            playable = True
+            url = urljoin(HOST, href)
+            entry_id = get_soup(url).find('div', 'video')['data-videoid']
+            plugin_path = plugin.url_for('play_video', entry_id=entry_id)
         elif 'children' in a.parent['class']:
             plugin_path = plugin.url_for('show_subcategories', path=href)
         else:
             plugin_path = plugin.url_for('show_video_list', path=href)
 
-        yield {'label': title, 'path': plugin_path}
+        yield {'label': title, 'path': plugin_path, 'is_playable': playable}
 
 def get_subcategories(path):
     yield {'label': "All", 'path': plugin.url_for('show_video_list', path=path)}

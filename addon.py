@@ -44,7 +44,7 @@ MEDIA_URL_ROOT = urlunparse((MEDIA_SCHEME, MEDIA_HOST, "/p/{}/".format(PARTNER_I
 THUMB_URL_FMT = MEDIA_URL_ROOT + "thumbnail/entry_id/{}/width/{}/"
 
 MANIFEST_XML_FMT = (MEDIA_URL_ROOT +
-                    "playManifest/entryId/{}/format/rtmp/a.f4m?referrer=" +
+                    "playManifest/entryId/{}/format/rtmp/protocol/rtmp/a.f4m?referrer=" +
                     BASE_URL.encode('base-64'))
 
 PLAYLIST_XML_FMT = urlunparse((MEDIA_SCHEME, MEDIA_HOST,
@@ -78,6 +78,22 @@ def get_soup(url, data=None):
 
 def get_viewstate(soup):
     return soup.find('input', id='__VIEWSTATE')['value']
+
+def get_media_url(entry_id):
+    manifest_url = MANIFEST_XML_FMT.format(entry_id)
+    xml = requests.get(manifest_url).text
+    soup = BeautifulSoup(xml, 'html.parser')
+
+    type = soup.streamtype.string
+    baseurl = urlparse(soup.baseurl.string)
+    url = urlparse(soup.find_all('media')[-1]['url'])
+    path = '/'.join((baseurl.path, url.path))
+
+    media_url = urlunparse((baseurl.scheme, baseurl.netloc, path, None, url.query, None))
+    if type == 'live':
+        media_url += ' live=1'
+
+    return media_url
 
 def get_page_links(soup, endpoint, **kwargs):
     page = None
@@ -273,13 +289,7 @@ def search_result(query):
 
 @plugin.route('/video/<entry_id>')
 def play_video(entry_id):
-    xml = requests.get(MANIFEST_XML_FMT.format(entry_id)).text
-    media = BeautifulSoup(xml, 'html.parser').find_all('media')
-    url = media[-1]['url'] # highest resolution
-    
-    video_url = urlunparse((MEDIA_SCHEME, MEDIA_HOST, urlparse(url)[2], None, None, None))
-
-    return plugin.set_resolved_url(video_url)
+    return plugin.set_resolved_url(get_media_url(entry_id))
 
 
 if __name__ == '__main__':

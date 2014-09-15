@@ -1,3 +1,6 @@
+1.0.0
+ - Added support for the Spurs TV YouTube channel
+
 0.3.0
  - Added Live Audio Commentary support
 

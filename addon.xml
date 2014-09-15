@@ -6,6 +6,7 @@
     <import addon="script.module.beautifulsoup4" version="4.3.1" optional="false"/>
     <import addon="script.module.html5lib" version="0.999.0" optional="false"/>
     <import addon="script.module.requests" version="2.3.0" optional="false"/>
+    <import addon="plugin.video.youtube" version="4.4.10" optional="false"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="addon.py">
     <provides>video</provides>

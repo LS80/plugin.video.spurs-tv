@@ -22,12 +22,14 @@ import os
 import re
 from urlparse import urlparse, urlunparse, urljoin
 from datetime import timedelta
+from functools import partial
 
-from xbmcswift2 import Plugin
+from xbmcswift2 import Plugin, xbmc
 from bs4 import BeautifulSoup
 import requests
 
 from resources.lib import utils
+from resources.lib import youtube
 
 HOST = "http://www.tottenhamhotspur.com"
 BASE_URL = HOST
@@ -227,7 +229,50 @@ def get_subcategories(path):
                'path': plugin.url_for('show_video_list', path=li.a['href'].strip('/'))}
 
 
-@plugin.route('/', name='index', options={'path': "spurs-tv"})
+def get_youtube_index():
+    for label in ("Latest", "Popular"):
+        yield {'label': label,
+               'path': plugin.url_for('show_youtube_list', playlist=label.lower())}
+
+    yield {'label': "Search",
+           'path': plugin.url_for('youtube_search')}
+
+    yield {'label': "Playlists",
+           'path': plugin.url_for('show_youtube_playlists')}
+
+def get_youtube_playlists():
+    for playlist_id, title, thumbnail, published_at in youtube.get_playlists():
+        item = {'label': title,
+                'thumbnail': thumbnail,
+                'path': plugin.url_for('show_youtube_list', playlist=playlist_id)}
+
+        utils.add_item_info(item, title, published_at)
+
+        yield item
+
+def get_youtube_video_items(generator):
+    for video_id, title, thumbnail, published_at in generator():
+        item = {'label': title,
+                'thumbnail': thumbnail,
+                'path': "plugin://plugin.video.youtube/?action=play_video&videoid={0}".format(video_id),
+                'is_playable': True}
+
+        utils.add_item_info(item, title, published_at)
+
+        yield item
+
+
+
+@plugin.route('/')
+def show_index():
+    return [{'label': "Official Site",
+             'thumbnail': os.path.join(plugin.addon.getAddonInfo('path'), "icon.png"),
+             'path': plugin.url_for('show_categories', path="spurs-tv")},
+
+            {'label': "YouTube Channel",
+             'thumbnail': xbmc.translatePath("special://home/addons/plugin.video.youtube/icon.png"),
+             'path': plugin.url_for('show_youtube_index')}]
+
 @plugin.route('/path/<path>')
 def show_categories(path):
     return get_categories(path)
@@ -291,6 +336,41 @@ def search_result(query):
 @plugin.route('/video/<entry_id>')
 def play_video(entry_id):
     return plugin.set_resolved_url(get_media_url(entry_id))
+
+
+@plugin.route('/youtube')
+def show_youtube_index():
+    return get_youtube_index()
+
+@plugin.route('/youtube/playlists')
+def show_youtube_playlists():
+    return plugin.finish(get_youtube_playlists(),
+                         sort_methods=['unsorted', 'date', 'title'])
+
+@plugin.route('/youtube/playlist/<playlist>')
+def show_youtube_list(playlist="latest"):
+    if playlist == "latest":
+        generator = youtube.get_latest
+    elif playlist == "popular":
+        generator = youtube.get_popular
+    else:
+        generator = partial(youtube.get_playlist_items, playlist)
+
+    return plugin.finish(get_youtube_video_items(generator),
+                         sort_methods=['unsorted', 'date', 'title'])
+
+@plugin.route('/youtube/search')
+def youtube_search():
+    query = plugin.keyboard(heading="Search")
+    if query:
+        url = plugin.url_for('youtube_search_result', query=query)
+        plugin.redirect(url)
+
+@plugin.route('/youtube/search/<query>')
+def youtube_search_result(query):
+    generator = partial(youtube.get_search_results, query)
+    return plugin.finish(get_youtube_video_items(generator),
+                         sort_methods=['unsorted', 'date', 'title'])
 
 
 if __name__ == '__main__':

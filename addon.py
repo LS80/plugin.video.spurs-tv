@@ -21,13 +21,13 @@
 import os
 import re
 from urlparse import urlparse, urlunparse, urljoin
-from datetime import date, timedelta
-import time
+from datetime import timedelta
 
 from xbmcswift2 import Plugin
 from bs4 import BeautifulSoup
 import requests
 
+from resources.lib import utils
 
 HOST = "http://www.tottenhamhotspur.com"
 BASE_URL = HOST
@@ -119,16 +119,13 @@ def get_page_links(soup, endpoint, **kwargs):
     return page, links
         
 def video_item(entry_id, title, date_str, date_format="%d %B %Y", duration_str=None, duration=None):
-    video_date = date(*(time.strptime(date_str, date_format)[0:3]))
-
     item = {'label': title,
             'thumbnail': THUMB_URL_FMT.format(entry_id, 480),
-            'is_playable': True,
             'path': plugin.url_for('play_video', entry_id=entry_id),
-            'info': {'title': title,
-                     'date': video_date.strftime("%d.%m.%Y")
-                    },
-            }
+            'is_playable': True}
+
+    video_date = utils.date_from_str(date_str, date_format)
+    utils.add_item_info(item, title, video_date)
     
     if duration is not None:
         item['stream_info'] = {'video': {'duration': duration}}

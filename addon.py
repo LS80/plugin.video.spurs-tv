@@ -60,8 +60,6 @@ NAV_FMT = FIELD_NAME_ROOT_FMT.format(2) + PAGINATION_FMT
 
 SEARCH_NAV_FMT = FIELD_NAME_ROOT_FMT.format(0) + PAGINATION_FMT
 
-HEADERS = {'User-agent': "Mozilla/5.0"}
-
 
 plugin = Plugin()
 
@@ -71,9 +69,9 @@ def get_soup(url, data=None):
     if not url.endswith('/'):
         url += '/'
     if data is not None:
-        response = requests.post(url, data, headers=HEADERS)
+        response = requests.post(url, data)
     else:
-        response = requests.get(url, headers=HEADERS)
+        response = requests.get(url)
     return BeautifulSoup(response.text, 'html5lib')
 
 def get_viewstate(soup):

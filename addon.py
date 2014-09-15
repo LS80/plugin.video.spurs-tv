@@ -254,13 +254,13 @@ def show_video_list(path):
         update_listing = False
 
     return plugin.finish(get_videos(soup, path),
-                         sort_methods=['playlist_order', 'date', 'duration', 'title'],
+                         sort_methods=['unsorted', 'date', 'duration', 'title'],
                          update_listing=update_listing)
 
 @plugin.route('/playlist/<playlist_id>')
 def show_playlist(playlist_id):
     return plugin.finish(get_playlist_videos(playlist_id),
-                         sort_methods=['playlist_order', 'date', 'duration', 'title'])
+                         sort_methods=['unsorted', 'date', 'duration', 'title'])
 
 @plugin.route('/search')
 def search():
@@ -289,7 +289,7 @@ def search_result(query):
     soup = get_soup(SEARCH_URL, search_data)
 
     return plugin.finish(get_search_result_videos(soup, query),
-                         sort_methods=['playlist_order', 'date', 'title'])
+                         sort_methods=['unsorted', 'date', 'title'])
 
 @plugin.route('/video/<entry_id>')
 def play_video(entry_id):

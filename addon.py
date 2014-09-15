@@ -271,7 +271,6 @@ def search():
 
 @plugin.route('/search/<query>')
 def search_result(query):
-    
     search_data = {FIELD_NAME_ROOT_FMT.format(0) + "drpTaxonomyCategoriesFilter": '144',
                    FIELD_NAME_ROOT_FMT.format(0) + "hdSearchTerm": query}
     
@@ -289,7 +288,8 @@ def search_result(query):
 
     soup = get_soup(SEARCH_URL, search_data)
 
-    return get_search_result_videos(soup, query)
+    return plugin.finish(get_search_result_videos(soup, query),
+                         sort_methods=['playlist_order', 'date', 'title'])
 
 @plugin.route('/video/<entry_id>')
 def play_video(entry_id):

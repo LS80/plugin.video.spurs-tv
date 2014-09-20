@@ -1,3 +1,6 @@
+1.1.0
+ - Added caching for some views which will rarely change
+
 1.0.0
  - Added support for the Spurs TV YouTube channel
 

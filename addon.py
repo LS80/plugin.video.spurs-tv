@@ -273,13 +273,13 @@ def show_index():
              'thumbnail': xbmc.translatePath("special://home/addons/plugin.video.youtube/icon.png"),
              'path': plugin.url_for('show_youtube_index')}]
 
-@plugin.route('/path/<path>')
+@plugin.cached_route('/path/<path>')
 def show_categories(path):
-    return get_categories(path)
+    return list(get_categories(path))
 
-@plugin.route('/path/<path>/subcategories')
+@plugin.cached_route('/path/<path>/subcategories')
 def show_subcategories(path):
-    return plugin.finish(get_subcategories(path))
+    return list(get_subcategories(path))
     
 @plugin.route('/videos/path/<path>')
 def show_video_list(path):
@@ -338,9 +338,9 @@ def play_video(entry_id):
     return plugin.set_resolved_url(get_media_url(entry_id))
 
 
-@plugin.route('/youtube')
+@plugin.cached_route('/youtube')
 def show_youtube_index():
-    return get_youtube_index()
+    return list(get_youtube_index())
 
 @plugin.route('/youtube/playlists')
 def show_youtube_playlists():

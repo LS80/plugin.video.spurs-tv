@@ -265,12 +265,17 @@ def get_youtube_video_items(generator):
 
 @plugin.route('/')
 def show_index():
+    try:
+        youtube_icon = Plugin(addon_id="plugin.video.youtube").addon.getAddonInfo('icon')
+    except:
+        youtube_icon = None
+
     return [{'label': "Official Site",
-             'thumbnail': os.path.join(plugin.addon.getAddonInfo('path'), "icon.png"),
+             'thumbnail': plugin.addon.getAddonInfo('icon'),
              'path': plugin.url_for('show_categories', path="spurs-tv")},
 
             {'label': "YouTube Channel",
-             'thumbnail': xbmc.translatePath("special://home/addons/plugin.video.youtube/icon.png"),
+             'thumbnail': youtube_icon,
              'path': plugin.url_for('show_youtube_index')}]
 
 @plugin.cached_route('/path/<path>')

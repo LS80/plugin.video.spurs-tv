@@ -182,8 +182,7 @@ def get_search_result_videos(soup, query):
     for card in soup(class_='card'):
         entry_id = ENTRY_ID_RE.search(card.a['style']).group(1)
         title = card.parent.find('h3').text
-        date_str = " ".join(card.parent.find('span', 'date').contents[0].split()[4:-1])
-        
+        date_str = " ".join(card.parent.find('span', 'date').text.split()[-4:-1])
         yield video_item(entry_id, title, date_str, date_format="%d %b %Y")
         
     form_data['viewstate'] = get_viewstate(soup)

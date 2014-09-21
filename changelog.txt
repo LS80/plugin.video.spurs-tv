@@ -1,3 +1,6 @@
+1.2.1
+ - Fixed a script error with some Official Site search results
+
 1.2.0
  - The YouTube plugin now only installs when required
 

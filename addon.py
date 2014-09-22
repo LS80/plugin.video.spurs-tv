@@ -103,7 +103,7 @@ def get_page_links(soup, endpoint, **kwargs):
         page, npages = [int(n) for n in PAGE_RE.search(intro.contents[0]).groups()]
          
         if page > 1:
-            item = {'label': "<< Page {:d}".format(page - 1),
+            item = {'label': u"<< {} ({:d})".format(plugin.get_string(30013), page - 1),
                     'path': plugin.url_for(endpoint,
                                            navigate='prev',
                                            **kwargs)
@@ -111,7 +111,7 @@ def get_page_links(soup, endpoint, **kwargs):
             links.append(item)
       
         if page < npages:
-            item = {'label': "Page {:d} >>".format(page + 1),
+            item = {'label': u"{} ({:d}) >>".format(plugin.get_string(30012), page + 1),
                     'path': plugin.url_for(endpoint,
                                            navigate='next',
                                            **kwargs)
@@ -188,10 +188,10 @@ def get_search_result_videos(soup, query):
     form_data['viewstate'] = get_viewstate(soup)
         
 def get_categories(path):
-    yield {'label': "Latest", 'path': plugin.url_for('show_video_list', path=path)}
+    yield {'label': plugin.get_string(30010), 'path': plugin.url_for('show_video_list', path=path)}
 
     if path == "spurs-tv":
-        yield {'label': "Search", 'path': plugin.url_for('search')}
+        yield {'label': plugin.get_string(30011), 'path': plugin.url_for('search')}
 
     url = urljoin(HOST, path)
     soup = get_soup(url)
@@ -219,7 +219,7 @@ def get_categories(path):
         yield {'label': title, 'path': plugin_path, 'is_playable': playable}
 
 def get_subcategories(path):
-    yield {'label': "All", 'path': plugin.url_for('show_video_list', path=path)}
+    yield {'label': plugin.get_string(30014), 'path': plugin.url_for('show_video_list', path=path)}
 
     url = urljoin(HOST, path)
     soup = get_soup(url)
@@ -229,14 +229,15 @@ def get_subcategories(path):
 
 
 def get_youtube_index():
-    for label in ("Latest", "Popular"):
-        yield {'label': label,
-               'path': plugin.url_for('show_youtube_list', playlist=label.lower())}
+    for playlist, stringid in (("latest", 30010),
+                               ("popular", 30015)):
+        yield {'label': plugin.get_string(stringid),
+               'path': plugin.url_for('show_youtube_list', playlist=playlist)}
 
-    yield {'label': "Search",
+    yield {'label': plugin.get_string(30011),
            'path': plugin.url_for('youtube_search')}
 
-    yield {'label': "Playlists",
+    yield {'label': plugin.get_string(30016),
            'path': plugin.url_for('show_youtube_playlists')}
 
 def get_youtube_playlists():
@@ -269,11 +270,11 @@ def show_index():
     except:
         youtube_icon = None
 
-    return [{'label': "Official Site",
+    return [{'label': plugin.get_string(30000),
              'thumbnail': plugin.addon.getAddonInfo('icon'),
              'path': plugin.url_for('show_categories', path="spurs-tv")},
 
-            {'label': "YouTube Channel",
+            {'label': plugin.get_string(30001),
              'thumbnail': youtube_icon,
              'path': plugin.url_for('show_youtube_index')}]
 
@@ -310,7 +311,7 @@ def show_playlist(playlist_id):
 
 @plugin.route('/search')
 def search():
-    query = plugin.keyboard(heading="Search")
+    query = plugin.keyboard(heading=plugin.get_string(30011))
     if query:
         url = plugin.url_for('search_result', query=query, page=1)
         plugin.redirect(url)

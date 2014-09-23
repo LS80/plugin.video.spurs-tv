@@ -14,8 +14,8 @@
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
     <language>en</language>
-    <summary>Watch videos from Spurs TV Online</summary>
-    <description>This video plugin provides access to the latest Tottenham Hotspur highlights, exclusive interviews, and more.</description>
+    <summary>Watch videos from Spurs TV</summary>
+    <description>This video plugin provides access to the latest Tottenham Hotspur highlights, exclusive interviews, live audio commentary, and more.</description>
     <website>http://www.tottenhamhotspur.com/spurs-tv/</website>
     <source>https://github.com/LS80/plugin.video.spurs-tv.git</source>
     <license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>

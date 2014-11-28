@@ -41,22 +41,22 @@ PAGE_RE = re.compile("page +(\d+) +of +(\d+)")
 
 MEDIA_SCHEME = "http"
 MEDIA_HOST = "mmp.streamuk.com"
-MEDIA_URL_ROOT = urlunparse((MEDIA_SCHEME, MEDIA_HOST, "/p/{}/".format(PARTNER_ID), None, None, None))
+MEDIA_URL_ROOT = urlunparse((MEDIA_SCHEME, MEDIA_HOST, "/p/{0}/".format(PARTNER_ID), None, None, None))
 
-THUMB_URL_FMT = MEDIA_URL_ROOT + "thumbnail/entry_id/{}/width/{}/"
+THUMB_URL_FMT = MEDIA_URL_ROOT + "thumbnail/entry_id/{0}/width/{1}/"
 
 MANIFEST_XML_FMT = (MEDIA_URL_ROOT +
-                    "playManifest/entryId/{}/format/rtmp/protocol/rtmp/a.f4m?referrer=" +
+                    "playManifest/entryId/{0}/format/rtmp/protocol/rtmp/a.f4m?referrer=" +
                     BASE_URL.encode('base-64'))
 
 PLAYLIST_XML_FMT = urlunparse((MEDIA_SCHEME, MEDIA_HOST,
                                "index.php/partnerservices2/executeplaylist?" +
-                               "partner_id={}&playlist_id={{}}".format(PARTNER_ID), None, None, None))
+                               "partner_id={0}&playlist_id={{0}}".format(PARTNER_ID), None, None, None))
 
 FIELD_NAME_ROOT_FMT = ("ctl00$ContentPlaceHolder1$DropZoneMainContent$columnDisplay$"
-                       "ctl00$controlcolumn$ctl{:02d}$WidgetHost$WidgetHost_widget$")
+                       "ctl00$controlcolumn$ctl{0:02d}$WidgetHost$WidgetHost_widget$")
 
-PAGINATION_FMT = "Pagination1${}"
+PAGINATION_FMT = "Pagination1${0}"
 
 NAV_FMT = FIELD_NAME_ROOT_FMT.format(2) + PAGINATION_FMT
 
@@ -103,7 +103,7 @@ def get_page_links(soup, endpoint, **kwargs):
         page, npages = [int(n) for n in PAGE_RE.search(intro.contents[0]).groups()]
          
         if page > 1:
-            item = {'label': u"<< {} ({:d})".format(plugin.get_string(30013), page - 1),
+            item = {'label': u"<< {0} ({1:d})".format(plugin.get_string(30013), page - 1),
                     'path': plugin.url_for(endpoint,
                                            navigate='prev',
                                            **kwargs)
@@ -111,7 +111,7 @@ def get_page_links(soup, endpoint, **kwargs):
             links.append(item)
       
         if page < npages:
-            item = {'label': u"{} ({:d}) >>".format(plugin.get_string(30012), page + 1),
+            item = {'label': u"{0} ({1:d}) >>".format(plugin.get_string(30012), page + 1),
                     'path': plugin.url_for(endpoint,
                                            navigate='next',
                                            **kwargs)

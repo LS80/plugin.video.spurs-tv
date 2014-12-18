@@ -150,8 +150,7 @@ def get_videos(soup, path):
         title = featured_video['data-title']
         duration_str = featured_video.find_next('span', 'duration').string 
         featured_date = featured_video.find_previous('p', 'featured-date')
-        date_str = " ".join(featured_date.string.split()[2:5])
-        
+        date_str = " ".join(featured_date.string.replace(u'\xa0', u' ').split()[2:5])
         yield video_item(featured_entry_id, title, date_str, duration_str=duration_str)
         
     for card in soup(class_='card'):

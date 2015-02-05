@@ -1,3 +1,7 @@
+1.4.0
+ - Fixed playback problems
+ - Added a debug setting
+
 1.3.3
  - Fixed another script error with Official Site video lists
 

@@ -81,7 +81,9 @@ def get_viewstate(soup):
 
 def get_media_url(entry_id):
     manifest_url = MANIFEST_XML_FMT.format(entry_id)
+    utils.log("Flash Manifest URL = {0}".format(manifest_url))
     xml = requests.get(manifest_url).text
+    utils.log("Flash Manifest XML = {0}".format(xml))
     soup = BeautifulSoup(xml, 'html.parser')
 
     type = soup.streamtype.string
@@ -90,7 +92,9 @@ def get_media_url(entry_id):
 
     media_url = "{0} playpath={1}".format(baseurl, playpath)
     if type == 'live':
-        media_url += ' live=1'
+        media_url += " live=1"
+
+    utils.log("Playing URL {0}".format(media_url))
 
     return media_url
 

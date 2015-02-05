@@ -85,11 +85,10 @@ def get_media_url(entry_id):
     soup = BeautifulSoup(xml, 'html.parser')
 
     type = soup.streamtype.string
-    baseurl = urlparse(soup.baseurl.string)
-    url = urlparse(soup.find_all('media')[-1]['url'])
-    path = '/'.join((baseurl.path, url.path))
+    baseurl = soup.baseurl.string
+    playpath = soup.find_all('media')[-1]['url'] # Highest resolution
 
-    media_url = urlunparse((baseurl.scheme, baseurl.netloc, path, None, url.query, None))
+    media_url = "{0} playpath={1}".format(baseurl, playpath)
     if type == 'live':
         media_url += ' live=1'
 

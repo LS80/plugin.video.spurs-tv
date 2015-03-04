@@ -76,8 +76,10 @@ def get_soup(url, data=None):
     if not url.endswith('/'):
         url += '/'
     if data is not None:
+        log("POST {0} {1}".format(url, data))
         response = requests.post(url, data)
     else:
+        log("GET {0}".format(url))
         response = requests.get(url)
     return BeautifulSoup(response.text, 'html5lib')
 

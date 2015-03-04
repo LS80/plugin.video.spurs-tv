@@ -67,6 +67,11 @@ plugin = Plugin()
 
 form_data = plugin.get_storage('form_data')
 
+debug = plugin.get_setting('debug', bool)
+def log(msg):
+    if debug:
+        plugin.log.info(msg)
+
 def get_soup(url, data=None):
     if not url.endswith('/'):
         url += '/'
@@ -81,9 +86,9 @@ def get_viewstate(soup):
 
 def get_media_url(entry_id):
     manifest_url = MANIFEST_XML_FMT.format(entry_id)
-    utils.log("Flash Manifest URL = {0}".format(manifest_url))
+    log("Flash Manifest URL = {0}".format(manifest_url))
     xml = requests.get(manifest_url).text
-    utils.log("Flash Manifest XML = {0}".format(xml))
+    log("Flash Manifest XML = {0}".format(xml))
     soup = BeautifulSoup(xml, 'html.parser')
 
     type = soup.streamtype.string
@@ -94,7 +99,7 @@ def get_media_url(entry_id):
     if type == 'live':
         media_url += " live=1"
 
-    utils.log("Playing URL {0}".format(media_url))
+    log("Playing URL {0}".format(media_url))
 
     return media_url
 

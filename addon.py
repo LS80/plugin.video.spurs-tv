@@ -58,8 +58,6 @@ FIELD_NAME_ROOT_FMT = ("ctl00$ContentPlaceHolder1$DropZoneMainContent$columnDisp
 
 PAGINATION_FMT = "Pagination1${0}"
 
-NAV_FMT = FIELD_NAME_ROOT_FMT.format(2) + PAGINATION_FMT
-
 SEARCH_NAV_FMT = FIELD_NAME_ROOT_FMT.format(0) + PAGINATION_FMT
 
 
@@ -110,6 +108,9 @@ def get_page_links(soup, endpoint, **kwargs):
     links = []
     intro = soup.find('div', 'intro')
     if intro:
+        input = intro.find_next_sibling('input')
+        form_data['field'] = input['name'].rpartition('$')[0]
+
         page, npages = [int(n) for n in PAGE_RE.search(intro.contents[0]).groups()]
          
         if page > 1:
@@ -155,13 +156,13 @@ def get_videos(soup, path):
     
     if page is None or page == 1:
         featured_video = soup.find('div', 'video')
-    
-        featured_entry_id = featured_video['data-videoid']
-        title = featured_video['data-title']
-        duration_str = featured_video.find_next('span', 'duration').string 
-        featured_date = featured_video.find_previous('p', 'featured-date')
-        date_str = " ".join(featured_date.string.replace(u'\xa0', u' ').split()[2:5])
-        yield video_item(featured_entry_id, title, date_str, duration_str=duration_str)
+        if featured_video:
+            featured_entry_id = featured_video['data-videoid']
+            title = featured_video['data-title']
+            duration_str = featured_video.find_next('span', 'duration').string
+            featured_date = featured_video.find_previous('p', 'featured-date')
+            date_str = " ".join(featured_date.string.replace(u'\xa0', u' ').split()[2:5])
+            yield video_item(featured_entry_id, title, date_str, duration_str=duration_str)
         
     for card in soup(class_='card'):
         entry_id = ENTRY_ID_RE.search(card.a['style']).group(1)
@@ -301,7 +302,8 @@ def show_video_list(path):
     if 'navigate' in plugin.request.args:
         navigate = plugin.request.args['navigate'][0]
         viewstate = form_data['viewstate']
-        data = {NAV_FMT.format(navigate): '',
+        field = form_data['field']
+        data = {"{0}${1}".format(field, navigate): '',
                 '__VIEWSTATE': viewstate}
         soup = get_soup(url, data)
         update_listing = True

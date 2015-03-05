@@ -1,3 +1,6 @@
+1.5.0
+ - Fixed the Capital One Cup category
+
 1.4.0
  - Fixed playback problems
  - Added a debug setting

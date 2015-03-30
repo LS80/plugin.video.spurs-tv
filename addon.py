@@ -91,16 +91,22 @@ def get_media_url(entry_id):
     log("Flash Manifest XML = {0}".format(xml))
     soup = BeautifulSoup(xml, 'html.parser')
 
-    type = soup.streamtype.string
-    baseurl = soup.baseurl.string
-    playpath = soup.find_all('media')[-1]['url'] # Highest resolution
+    resolution = plugin.get_setting('resolution')
+    media = soup.find('media', height=resolution)
+    playpath = media['url']
 
-    media_url = "{0} playpath={1}".format(baseurl, playpath)
-    if type == 'live':
-        media_url += " live=1"
+    protocol = plugin.get_setting('protocol')
+    if protocol == 'http':
+        media_url = urlunparse((MEDIA_SCHEME, MEDIA_HOST, urlparse(playpath).path,
+                                None, None, None))
+    elif protocol == 'rtmp':
+        baseurl = soup.baseurl.string
+        type = soup.streamtype.string
+        media_url = "{0} playpath={1}".format(baseurl, playpath)
+        if type == 'live':
+            media_url += " live=1"
 
     log("Playing URL {0}".format(media_url))
-
     return media_url
 
 def get_page_links(soup, endpoint, **kwargs):

@@ -198,10 +198,8 @@ def get_search_result_videos(soup, query):
     form_data['viewstate'] = get_viewstate(soup)
         
 def get_categories(path):
-    yield {'label': plugin.get_string(30010), 'path': plugin.url_for('show_video_list', path=path)}
-
-    if path == "spurs-tv":
-        yield {'label': plugin.get_string(30011), 'path': plugin.url_for('search')}
+    yield {'label': "[B]{0}[/B]".format(plugin.get_string(30010)),
+           'path': plugin.url_for('show_video_list', path=path)}
 
     url = urljoin(HOST, path)
     soup = get_soup(url)
@@ -280,13 +278,18 @@ def show_index():
     except:
         youtube_icon = None
 
-    return [{'label': plugin.get_string(30000),
-             'thumbnail': plugin.addon.getAddonInfo('icon'),
-             'path': plugin.url_for('show_categories', path="spurs-tv")},
+    categories = list(get_categories("spurs-tv"))
 
-            {'label': plugin.get_string(30001),
-             'thumbnail': youtube_icon,
-             'path': plugin.url_for('show_youtube_index')}]
+    search = {'label': "[B]{0}[/B]".format(plugin.get_string(30011)),
+              'path': plugin.url_for('search')}
+    categories.insert(1, search)
+
+    youtube = {'label': "[B]{0}[/B]".format(plugin.get_string(30001)),
+               'thumbnail': youtube_icon,
+               'path': plugin.url_for('show_youtube_index')}
+    categories.append(youtube)
+
+    return categories
 
 @plugin.cached_route('/path/<path>')
 def show_categories(path):

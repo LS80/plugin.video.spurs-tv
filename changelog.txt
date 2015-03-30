@@ -1,3 +1,8 @@
+2.0.0
+ - Reorganised the menu
+ - Added settings to control the stream protocol and video resolution
+ - Added a shortcut to change the YouTube plugin settings
+
 1.5.0
  - Fixed the Capital One Cup category
 

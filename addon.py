@@ -120,7 +120,7 @@ def get_page_links(soup, endpoint, **kwargs):
         page, npages = [int(n) for n in PAGE_RE.search(intro.contents[0]).groups()]
          
         if page > 1:
-            item = {'label': u"<< {0} ({1:d})".format(plugin.get_string(30013), page - 1),
+            item = {'label': u"[B]<< {0} ({1:d})[/B]".format(plugin.get_string(30013), page - 1),
                     'path': plugin.url_for(endpoint,
                                            navigate='prev',
                                            **kwargs)
@@ -128,7 +128,7 @@ def get_page_links(soup, endpoint, **kwargs):
             links.append(item)
       
         if page < npages:
-            item = {'label': u"{0} ({1:d}) >>".format(plugin.get_string(30012), page + 1),
+            item = {'label': u"[B]{0} ({1:d}) >>[/B]".format(plugin.get_string(30012), page + 1),
                     'path': plugin.url_for(endpoint,
                                            navigate='next',
                                            **kwargs)

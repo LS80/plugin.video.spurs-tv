@@ -84,18 +84,30 @@ def get_soup(url, data=None):
 def get_viewstate(soup):
     return soup.find('input', id='__VIEWSTATE')['value']
 
-def get_media_url(entry_id):
+def get_media_url(entry_id, protocol='http'):
     manifest_url = MANIFEST_XML_FMT.format(entry_id)
     log("Flash Manifest URL = {0}".format(manifest_url))
     xml = requests.get(manifest_url).text
     log("Flash Manifest XML = {0}".format(xml))
     soup = BeautifulSoup(xml, 'html.parser')
 
-    resolution = plugin.get_setting('resolution')
-    media = soup.find('media', height=resolution)
-    playpath = media['url']
+    if soup.media['url'].startswith('mp4'):
+        resolution = int(plugin.get_setting('resolution'))
+        media = soup.find('media', height=resolution)
+        if media:
+            log("Found resolution {0}".format(resolution))
+            playpath = media['url']
+        else:
+            for media in soup('media'):
+                if media['height'] > resolution:
+                    break
+            log("Nearest match resolution = {0}".format(media['height']))
+            playpath = media['url']
+    else:
+        # e.g. live commentary
+        playpath = soup.media['url']
+        protocol = 'rtmp'
 
-    protocol = plugin.get_setting('protocol')
     if protocol == 'http':
         media_url = urlunparse((MEDIA_SCHEME, MEDIA_HOST, urlparse(playpath).path,
                                 None, None, None))
@@ -360,7 +372,8 @@ def search_result(query):
 
 @plugin.route('/video/<entry_id>')
 def play_video(entry_id):
-    return plugin.set_resolved_url(get_media_url(entry_id))
+    protocol = plugin.get_setting('protocol')
+    return plugin.set_resolved_url(get_media_url(entry_id, protocol))
 
 
 @plugin.cached_route('/youtube')

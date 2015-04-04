@@ -1,3 +1,6 @@
+2.0.1
+ - Fixed Live Audio Commentary
+
 2.0.0
  - Reorganised the menu
  - Added settings to control the stream protocol and video resolution

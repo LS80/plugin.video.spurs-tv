@@ -223,8 +223,9 @@ def get_categories(path):
     soup = get_soup(url)
     for a in soup.find('map', id='inside-nav')('a'):
         title = a['title']
-        if title == 'Spurs TV Help':
-            break
+        if title in ('Spurs TV Help',
+                     'IPB Broadcasters'):
+            continue
 
         href = a['href'].strip('/')
         playable = False

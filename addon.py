@@ -281,7 +281,7 @@ def get_youtube_video_items(generator):
     for video_id, title, thumbnail, published_at in generator():
         item = {'label': title,
                 'thumbnail': thumbnail,
-                'path': "plugin://plugin.video.youtube/?action=play_video&videoid={0}".format(video_id),
+                'path': "plugin://plugin.video.youtube/play/?video_id={0}".format(video_id),
                 'is_playable': True}
 
         utils.add_item_info(item, title, published_at)

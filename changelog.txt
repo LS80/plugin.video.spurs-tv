@@ -1,3 +1,6 @@
+2.1.0
+ - Enabled the Tour 2015 category
+
 2.0.1
  - Fixed Live Audio Commentary
 

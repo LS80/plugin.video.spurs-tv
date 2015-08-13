@@ -1,3 +1,6 @@
+2.3.0
+ - Added a Stadium TV category
+
 2.2.0
  - Fixed problems caused by changes to the official site video hosting
  - Removed the option to choose the stream protocol

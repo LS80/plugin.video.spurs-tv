@@ -190,6 +190,9 @@ def get_categories(path):
     yield {'label': "[B]{0}[/B]".format(plugin.get_string(30010)),
            'path': plugin.url_for('show_video_list', path=path)}
 
+    yield {'label': "Stadium TV",
+           'path': plugin.url_for('show_playlist', playlist_id='0_n8hezta2')}
+
     url = urljoin(HOST, path)
     soup = get_soup(url)
     for a in soup.find('map', id='inside-nav')('a'):

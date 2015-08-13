@@ -27,6 +27,7 @@ from functools import partial
 from xbmcswift2 import Plugin, xbmc
 from bs4 import BeautifulSoup
 import requests
+import livestreamer
 
 from resources.lib import utils
 from resources.lib import youtube
@@ -40,14 +41,12 @@ ENTRY_ID_RE = re.compile("entry_id/(\w+)/")
 PAGE_RE = re.compile("page +(\d+) +of +(\d+)")
 
 MEDIA_SCHEME = "http"
-MEDIA_HOST = "mmp.streamuk.com"
+MEDIA_HOST = "open.http.mp.streamamg.com"
 MEDIA_URL_ROOT = urlunparse((MEDIA_SCHEME, MEDIA_HOST, "/p/{0}/".format(PARTNER_ID), None, None, None))
 
-THUMB_URL_FMT = MEDIA_URL_ROOT + "thumbnail/entry_id/{0}/width/{1}/"
+THUMB_URL_FMT = MEDIA_URL_ROOT + "thumbnail/entry_id/{0}/height/720"
 
-MANIFEST_XML_FMT = (MEDIA_URL_ROOT +
-                    "playManifest/entryId/{0}/format/rtmp/protocol/rtmp/a.f4m?referrer=" +
-                    BASE_URL.encode('base-64'))
+HLS_URL_FMT = MEDIA_URL_ROOT + "playManifest/entryId/{0}/format/applehttp"
 
 PLAYLIST_XML_FMT = urlunparse((MEDIA_SCHEME, MEDIA_HOST,
                                "index.php/partnerservices2/executeplaylist?" +
@@ -84,40 +83,12 @@ def get_soup(url, data=None):
 def get_viewstate(soup):
     return soup.find('input', id='__VIEWSTATE')['value']
 
-def get_media_url(entry_id, protocol='http'):
-    manifest_url = MANIFEST_XML_FMT.format(entry_id)
-    log("Flash Manifest URL = {0}".format(manifest_url))
-    xml = requests.get(manifest_url).text
-    log("Flash Manifest XML = {0}".format(xml))
-    soup = BeautifulSoup(xml, 'html.parser')
+def get_media_url(entry_id):
+    hls_url = 'hlsvariant://' + HLS_URL_FMT.format(entry_id)
+    resolution = plugin.get_setting('resolution')
+    streams = livestreamer.streams(hls_url, sorting_excludes=[">{}".format(resolution)])
 
-    if soup.media['url'].startswith('mp4'):
-        resolution = int(plugin.get_setting('resolution'))
-        media = soup.find('media', height=resolution)
-        if media:
-            log("Found resolution {0}".format(resolution))
-            playpath = media['url']
-        else:
-            for media in soup('media'):
-                if media['height'] > resolution:
-                    break
-            log("Nearest match resolution = {0}".format(media['height']))
-            playpath = media['url']
-    else:
-        # e.g. live commentary
-        playpath = soup.media['url']
-        protocol = 'rtmp'
-
-    if protocol == 'http':
-        media_url = urlunparse((MEDIA_SCHEME, MEDIA_HOST, urlparse(playpath).path,
-                                None, None, None))
-    elif protocol == 'rtmp':
-        baseurl = soup.baseurl.string
-        type = soup.streamtype.string
-        media_url = "{0} playpath={1}".format(baseurl, playpath)
-        if type == 'live':
-            media_url += " live=1"
-
+    media_url = streams['best'].url
     log("Playing URL {0}".format(media_url))
     return media_url
 
@@ -151,7 +122,7 @@ def get_page_links(soup, endpoint, **kwargs):
         
 def video_item(entry_id, title, date_str, date_format="%d %B %Y", duration_str=None, duration=None):
     item = {'label': title,
-            'thumbnail': THUMB_URL_FMT.format(entry_id, 480),
+            'thumbnail': THUMB_URL_FMT.format(entry_id),
             'path': plugin.url_for('play_video', entry_id=entry_id),
             'is_playable': True}
 
@@ -373,8 +344,7 @@ def search_result(query):
 
 @plugin.route('/video/<entry_id>')
 def play_video(entry_id):
-    protocol = plugin.get_setting('protocol')
-    return plugin.set_resolved_url(get_media_url(entry_id, protocol))
+    return plugin.set_resolved_url(get_media_url(entry_id))
 
 
 @plugin.cached_route('/youtube')

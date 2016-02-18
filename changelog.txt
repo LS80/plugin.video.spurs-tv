@@ -1,3 +1,6 @@
+2.5.0
+ - Use the built-in parser instead of html5lib
+
 2.4.0
  - Fixed the categories 'The Vault' and 'A Question of Spurs'
 

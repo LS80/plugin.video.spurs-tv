@@ -78,7 +78,7 @@ def get_soup(url, data=None):
     else:
         log("GET {0}".format(url))
         response = requests.get(url)
-    return BeautifulSoup(response.text, 'html5lib')
+    return BeautifulSoup(response.text, 'html.parser')
 
 def get_viewstate(soup):
     return soup.find('input', id='__VIEWSTATE')['value']

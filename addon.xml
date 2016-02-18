@@ -4,7 +4,6 @@
     <import addon="xbmc.python" version="2.1.0"/>
     <import addon="script.module.xbmcswift2" version="2.4.0" optional="false"/>
     <import addon="script.module.beautifulsoup4" version="4.3.1" optional="false"/>
-    <import addon="script.module.html5lib" version="0.999.0" optional="false"/>
     <import addon="script.module.requests" version="2.3.0" optional="false"/>
     <import addon="script.module.livestreamer" version="1.12.0" optional="false"/>
     <import addon="plugin.video.youtube" version="4.4.10" optional="true"/>

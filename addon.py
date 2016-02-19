@@ -23,6 +23,7 @@ import re
 from urlparse import urlparse, urlunparse, urljoin
 from datetime import timedelta
 from functools import partial
+import xml.etree.ElementTree as ET
 
 from xbmcswift2 import Plugin, xbmc
 from bs4 import BeautifulSoup
@@ -165,13 +166,15 @@ def get_videos(soup, path):
 
 def get_playlist_videos(playlist_id):
     playlist_url = PLAYLIST_XML_FMT.format(playlist_id)
-    xml = requests.get(playlist_url).text
-    for entry in BeautifulSoup(xml, 'html5lib').entries:
-        entry_id = entry.id.string
-        title = entry.find('name').string
-        date_str = entry.createdat.string.split()[0]
+    log("Playlist XML URL {0}".format(playlist_url))
+    xml = requests.get(playlist_url).content
+    root = ET.fromstring(xml)
+    for entry in root.find('result').find('entries'):
+        entry_id = entry.find('id').text
+        title = entry.find('name').text
+        date_str = entry.find('createdAt').text.split()[0]
         yield video_item(entry_id, title, date_str, date_format="%Y-%m-%d",
-                         duration=entry.duration.string)
+                         duration=entry.find('duration').text)
 
 def get_search_result_videos(soup, query):
     page, links = get_page_links(soup, 'search_result', query=query)

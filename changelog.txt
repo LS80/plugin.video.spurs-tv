@@ -1,3 +1,6 @@
+2.6.0
+ - Use ElementTree to parse the playlist xml
+
 2.5.0
  - Use the built-in parser instead of html5lib
 

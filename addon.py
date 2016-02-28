@@ -44,20 +44,20 @@ PAGE_RE = re.compile("page +(\d+) +of +(\d+)")
 
 MEDIA_SCHEME = "http"
 MEDIA_HOST = "open.http.mp.streamamg.com"
-MEDIA_URL_ROOT = urlunparse((MEDIA_SCHEME, MEDIA_HOST, "/p/{0}/".format(PARTNER_ID), None, None, None))
+MEDIA_URL_ROOT = urlunparse((MEDIA_SCHEME, MEDIA_HOST, "/p/{}/".format(PARTNER_ID), None, None, None))
 
-THUMB_URL_FMT = MEDIA_URL_ROOT + "thumbnail/entry_id/{0}/height/720"
+THUMB_URL_FMT = MEDIA_URL_ROOT + "thumbnail/entry_id/{}/height/720"
 
-HLS_URL_FMT = MEDIA_URL_ROOT + "playManifest/entryId/{0}/format/applehttp"
+HLS_URL_FMT = MEDIA_URL_ROOT + "playManifest/entryId/{}/format/applehttp"
 
 PLAYLIST_XML_FMT = urlunparse((MEDIA_SCHEME, MEDIA_HOST,
                                "index.php/partnerservices2/executeplaylist?" +
-                               "partner_id={0}&playlist_id={{0}}".format(PARTNER_ID), None, None, None))
+                               "partner_id={}&playlist_id={{}}".format(PARTNER_ID), None, None, None))
 
 FIELD_NAME_ROOT_FMT = ("ctl00$ContentPlaceHolder1$DropZoneMainContent$columnDisplay$"
-                       "ctl00$controlcolumn$ctl{0:02d}$WidgetHost$WidgetHost_widget$")
+                       "ctl00$controlcolumn$ctl{:02d}$WidgetHost$WidgetHost_widget$")
 
-PAGINATION_FMT = "Pagination1${0}"
+PAGINATION_FMT = "Pagination1${}"
 
 SEARCH_NAV_FMT = FIELD_NAME_ROOT_FMT.format(0) + PAGINATION_FMT
 
@@ -76,10 +76,10 @@ def get_soup(url, data=None):
     if not url.endswith('/'):
         url += '/'
     if data is not None:
-        log("POST {0} {1}".format(url, data))
+        log("POST {} {}".format(url, data))
         response = requests.post(url, data)
     else:
-        log("GET {0}".format(url))
+        log("GET {}".format(url))
         response = requests.get(url)
     return BeautifulSoup(response.text, 'html.parser')
 
@@ -89,10 +89,10 @@ def get_viewstate(soup):
 def get_media_url(entry_id):
     hls_url = 'hlsvariant://' + HLS_URL_FMT.format(entry_id)
     resolution = plugin.get_setting('resolution')
-    streams = livestreamer.streams(hls_url, sorting_excludes=[">{0}".format(resolution)])
+    streams = livestreamer.streams(hls_url, sorting_excludes=[">{}".format(resolution)])
 
     media_url = streams['best'].url
-    log("Playing URL {0}".format(media_url))
+    log("Playing URL {}".format(media_url))
     return media_url
 
 def get_page_links(soup, endpoint, **kwargs):
@@ -106,7 +106,7 @@ def get_page_links(soup, endpoint, **kwargs):
         page, npages = [int(n) for n in PAGE_RE.search(intro.contents[0]).groups()]
          
         if page > 1:
-            item = {'label': u"[B]<< {0} ({1:d})[/B]".format(plugin.get_string(30013), page - 1),
+            item = {'label': u"[B]<< {} ({:d})[/B]".format(plugin.get_string(30013), page - 1),
                     'path': plugin.url_for(endpoint,
                                            navigate='prev',
                                            **kwargs)
@@ -114,7 +114,7 @@ def get_page_links(soup, endpoint, **kwargs):
             links.append(item)
       
         if page < npages:
-            item = {'label': u"[B]{0} ({1:d}) >>[/B]".format(plugin.get_string(30012), page + 1),
+            item = {'label': u"[B]{} ({:d}) >>[/B]".format(plugin.get_string(30012), page + 1),
                     'path': plugin.url_for(endpoint,
                                            navigate='next',
                                            **kwargs)
@@ -168,7 +168,7 @@ def get_videos(soup, path):
 
 def get_playlist_videos(playlist_id):
     playlist_url = PLAYLIST_XML_FMT.format(playlist_id)
-    log("Playlist XML URL {0}".format(playlist_url))
+    log("Playlist XML URL {}".format(playlist_url))
     xml = requests.get(playlist_url).content
     root = ET.fromstring(xml)
     for entry in root.find('result').find('entries'):
@@ -192,7 +192,7 @@ def get_search_result_videos(soup, query):
     form_data['viewstate'] = get_viewstate(soup)
         
 def get_categories(path):
-    yield {'label': "[B]{0}[/B]".format(plugin.get_string(30010)),
+    yield {'label': "[B]{}[/B]".format(plugin.get_string(30010)),
            'path': plugin.url_for('show_video_list', path=path)}
 
     yield {'label': "Stadium TV",
@@ -263,7 +263,7 @@ def get_youtube_video_items(generator):
     for video_id, title, thumbnail, published_at in generator():
         item = {'label': title,
                 'thumbnail': thumbnail,
-                'path': "plugin://plugin.video.youtube/play/?video_id={0}".format(video_id),
+                'path': "plugin://plugin.video.youtube/play/?video_id={}".format(video_id),
                 'is_playable': True}
 
         utils.add_item_info(item, title, published_at)
@@ -281,11 +281,11 @@ def show_index():
 
     categories = list(get_categories("spurs-tv"))
 
-    search = {'label': "[B]{0}[/B]".format(plugin.get_string(30011)),
+    search = {'label': "[B]{}[/B]".format(plugin.get_string(30011)),
               'path': plugin.url_for('search')}
     categories.insert(1, search)
 
-    youtube = {'label': "[B]{0}[/B]".format(plugin.get_string(30001)),
+    youtube = {'label': "[B]{}[/B]".format(plugin.get_string(30001)),
                'thumbnail': youtube_icon,
                'path': plugin.url_for('show_youtube_index')}
     categories.append(youtube)
@@ -307,7 +307,7 @@ def show_video_list(path):
         navigate = plugin.request.args['navigate'][0]
         viewstate = form_data['viewstate']
         field = form_data['field']
-        data = {"{0}${1}".format(field, navigate): '',
+        data = {"{}${}".format(field, navigate): '',
                 '__VIEWSTATE': viewstate}
         soup = get_soup(url, data)
         update_listing = True

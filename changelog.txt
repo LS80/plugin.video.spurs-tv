@@ -1,3 +1,8 @@
+2.7.0
+ - Kodi Krypton is now a requirement
+ - Use Rollbar for automatically reporting errors
+ - Fixed incorrect characters for some menu items introduced in version 2.6.0
+
 2.6.0
  - Use ElementTree to parse the playlist xml
 

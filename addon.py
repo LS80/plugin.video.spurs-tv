@@ -170,7 +170,7 @@ def get_playlist_videos(playlist_id):
     playlist_url = PLAYLIST_XML_FMT.format(playlist_id)
     log("Playlist XML URL {}".format(playlist_url))
     xml = requests.get(playlist_url).content
-    root = ET.fromstring(xml)
+    root = ET.fromstring(xml, parser=ET.XMLParser(encoding='UTF-8'))
     for entry in root.find('result').find('entries'):
         entry_id = entry.find('id').text
         title = entry.find('name').text

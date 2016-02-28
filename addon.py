@@ -29,6 +29,7 @@ from xbmcswift2 import Plugin, xbmc
 from bs4 import BeautifulSoup
 import requests
 import livestreamer
+import rollbar
 
 from resources.lib import utils
 from resources.lib import youtube
@@ -64,8 +65,9 @@ SEARCH_NAV_FMT = FIELD_NAME_ROOT_FMT.format(0) + PAGINATION_FMT
 plugin = Plugin()
 
 form_data = plugin.get_storage('form_data')
-
 debug = plugin.get_setting('debug', bool)
+
+
 def log(msg):
     if debug:
         plugin.log.info(msg)
@@ -392,4 +394,10 @@ def youtube_search_result(query):
 
 
 if __name__ == '__main__':
-    plugin.run()
+    rollbar.init('45541e2cb1e24f95b9c6311c2e931a11')
+
+    try:
+        plugin.run()
+    except Exception:
+        rollbar.report_exc_info()
+        raise

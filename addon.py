@@ -208,9 +208,7 @@ def get_categories(path):
 
         href = a['href'].strip('/')
         playable = False
-        if href.endswith("spurs-tv"):
-            plugin_path = plugin.url_for('show_categories', path=href)
-        elif title == "Ledley King Testimonial":
+        if title == "Ledley King Testimonial":
             plugin_path = plugin.url_for('show_playlist', playlist_id='0_2nmzot3u')
         elif title == "The Vault":
             plugin_path = plugin.url_for('show_playlist', playlist_id='0_32nxk7s7')

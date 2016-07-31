@@ -90,9 +90,12 @@ def get_viewstate(soup):
     return soup.find('input', id='__VIEWSTATE')['value']
 
 def get_media_url(entry_id):
-    hls_url = 'hlsvariant://' + HLS_URL_FMT.format(entry_id)
+    hls_url = HLS_URL_FMT.format(entry_id)
+    livestreamer_url = 'hlsvariant://' + hls_url
+    log("Retrieving streams from {}".format(hls_url))
     resolution = plugin.get_setting('resolution')
-    streams = livestreamer.streams(hls_url, sorting_excludes=[">{}".format(resolution)])
+    streams = livestreamer.streams(livestreamer_url, sorting_excludes=[">{}".format(resolution)])
+    log("Available streams: {}".format(' '.join(streams)))
 
     media_url = streams['best'].url
     log("Playing URL {}".format(media_url))
@@ -410,9 +413,8 @@ def youtube_search_result(query):
 
 if __name__ == '__main__':
     rollbar.init('45541e2cb1e24f95b9c6311c2e931a11')
-
     try:
         plugin.run()
     except Exception:
-        rollbar.report_exc_info()
+        rollbar.report_exc_info(extra_data={'url': plugin.request.url})
         raise

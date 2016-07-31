@@ -15,8 +15,8 @@
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
     <language>en</language>
-    <summary>Watch videos from Spurs TV</summary>
-    <description>This video plugin provides access to the latest Tottenham Hotspur highlights, exclusive interviews, live audio commentary, and more.</description>
+    <summary lang="en_gb">Watch videos from Spurs TV</summary>
+    <description lang="en_gb">This video plugin provides access to Tottenham Hotspur match highlights, exclusive interviews, live audio commentary of all first team matches, and more.</description>
     <website>http://www.tottenhamhotspur.com/spurs-tv/</website>
     <forum>http://forum.kodi.tv/showthread.php?tid=235234</forum>
     <source>https://github.com/LS80/plugin.video.spurs-tv.git</source>

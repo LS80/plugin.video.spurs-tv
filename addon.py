@@ -61,6 +61,9 @@ PAGINATION_FMT = "Pagination1${}"
 
 SEARCH_NAV_FMT = FIELD_NAME_ROOT_FMT.format(0) + PAGINATION_FMT
 
+STADIUM_CAMS = ('0_74tzyqju', '0_4asu087t', '0_4et6qkjl')
+STADIUM_THUMB = HOST + ("/uploadedImages/Shared_Assets/Images/News_images/SEASON_16-17/"
+                        "July_2016/NDP_update/west_elevation_instory.jpg")
 
 plugin = Plugin()
 
@@ -190,13 +193,23 @@ def get_search_result_videos(soup, query):
         yield video_item(entry_id, title, date_str, date_format="%d %b %Y")
         
     form_data['viewstate'] = get_viewstate(soup)
+
+def get_stadium_index():
+    for cam_num, entry_id in enumerate(STADIUM_CAMS, 1):
+        yield {'label': "{} {}".format(plugin.get_string(30018), cam_num),
+               'path': plugin.url_for('play_video', entry_id=entry_id),
+               'is_playable': True}
+
+    yield {'label': "Stadium TV",
+           'path': plugin.url_for('show_playlist', playlist_id='0_n8hezta2')}
         
 def get_categories(path):
     yield {'label': "[B]{}[/B]".format(plugin.get_string(30010)),
            'path': plugin.url_for('show_video_list', path=path)}
 
-    yield {'label': "Stadium TV",
-           'path': plugin.url_for('show_playlist', playlist_id='0_n8hezta2')}
+    yield {'label': plugin.get_string(30017),
+           'path': plugin.url_for('show_stadium_index'),
+           'thumbnail': STADIUM_THUMB}
 
     url = urljoin(HOST, path)
     soup = get_soup(url)
@@ -297,6 +310,10 @@ def show_categories(path):
 @plugin.cached_route('/path/<path>/subcategories')
 def show_subcategories(path):
     return list(get_subcategories(path))
+
+@plugin.cached_route('/stadium')
+def show_stadium_index():
+    return list(get_stadium_index())
     
 @plugin.route('/videos/path/<path>')
 def show_video_list(path):

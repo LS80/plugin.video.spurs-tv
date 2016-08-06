@@ -24,8 +24,9 @@ from urlparse import urlparse, urlunparse, urljoin
 from datetime import timedelta
 from functools import partial
 import xml.etree.ElementTree as ET
+import traceback
 
-from xbmcswift2 import Plugin, xbmc
+from xbmcswift2 import Plugin, xbmc, xbmcgui
 from bs4 import BeautifulSoup
 import requests
 import livestreamer
@@ -74,6 +75,10 @@ debug = plugin.get_setting('debug', bool)
 def log(msg):
     if debug:
         plugin.log.info(msg)
+
+def error_report_yes(exc):
+    return xbmcgui.Dialog().yesno(plugin.get_string(30130), plugin.get_string(30131),
+                                  "[COLOR=red]{}[/COLOR]".format(exc), plugin.get_string(30133))
 
 def get_soup(url, data=None):
     if not url.endswith('/'):
@@ -415,6 +420,8 @@ if __name__ == '__main__':
     rollbar.init('45541e2cb1e24f95b9c6311c2e931a11')
     try:
         plugin.run()
-    except Exception:
-        rollbar.report_exc_info(extra_data={'url': plugin.request.url})
-        raise
+    except Exception as exc:
+        if plugin.get_setting('send_error_reports', bool) or error_report_yes(exc):
+            rollbar.report_exc_info(extra_data={'url': plugin.request.url})
+            xbmcgui.Dialog().notification(plugin.name, plugin.get_string(30134))
+        plugin.log.error(traceback.format_exc)

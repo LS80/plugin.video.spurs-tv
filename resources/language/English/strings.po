@@ -69,6 +69,11 @@ msgctxt "#30101"
 msgid "Enable debug logging"
 msgstr ""
 
+#. Setting to enable automatic sending of addon error reports
+msgctxt "#30102"
+msgid "Automatically send error reports"
+msgstr ""
+
 #. Main settings category
 msgctxt "#30110"
 msgid "Official Site"
@@ -88,4 +93,22 @@ msgstr ""
 msgctxt "#30121"
 msgid "Settings"
 msgstr ""
+
+#. Heading for the error reporting yes/no dialog
+msgctxt "#30130"
+msgid "Error Report"
+msgstr ""
+
+#. Line 1 of the error reporting yes/no dialog
+msgctxt "#30131"
+msgid "An error occurred:"
+msgstr ""
+
+#. Line 3 of the error reporting yes/no dialog
+msgctxt "#30133"
+msgid "Send error report?"
+
+#. Notification message that an error report was sent
+msgctxt "#30134"
+msgid "Error report sent"
 

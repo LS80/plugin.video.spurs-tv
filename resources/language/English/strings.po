@@ -59,6 +59,11 @@ msgctxt "#30017"
 msgid "New Stadium"
 msgstr ""
 
+#. List item to show videos from a particular category such as "Stadium TV"
+msgctxt "#30019"
+msgid "Video Library"
+msgstr ""
+
 #. Settings category for advanced options
 msgctxt "#30100"
 msgid "Advanced"

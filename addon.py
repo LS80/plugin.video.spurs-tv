@@ -25,6 +25,7 @@ from datetime import timedelta
 from functools import partial
 import xml.etree.ElementTree as ET
 import traceback
+import json
 
 from xbmcswift2 import Plugin, xbmc, xbmcgui
 from bs4 import BeautifulSoup
@@ -62,7 +63,7 @@ PAGINATION_FMT = "Pagination1${}"
 
 SEARCH_NAV_FMT = FIELD_NAME_ROOT_FMT.format(0) + PAGINATION_FMT
 
-STADIUM_CAMS = ('0_74tzyqju', '0_4asu087t', '0_4et6qkjl')
+PLAYER_VARS_RE = re.compile("kWidget.embed\((.*?)\)", re.MULTILINE|re.DOTALL)
 STADIUM_THUMB = HOST + ("/uploadedImages/Shared_Assets/Images/News_images/SEASON_16-17/"
                         "July_2016/NDP_update/west_elevation_instory.jpg")
 
@@ -202,13 +203,20 @@ def get_search_result_videos(soup, query):
         
     form_data['viewstate'] = get_viewstate(soup)
 
+def get_stadium_cams():
+    soup = get_soup(urljoin(HOST, "/new-scheme/stadium-tv/"))
+    for video in soup('div', 'video-new'):
+        title = video.find_previous('h2').get_text()
+        entry_id = json.loads(PLAYER_VARS_RE.search(video('script')[-1].string).group(1))['entry_id']
+        yield title, entry_id
+
 def get_stadium_index():
-    for cam_num, entry_id in enumerate(STADIUM_CAMS, 1):
-        yield {'label': "{} {}".format(plugin.get_string(30018), cam_num),
+    for title, entry_id in get_stadium_cams():
+        yield {'label': title,
                'path': plugin.url_for('play_video', entry_id=entry_id),
                'is_playable': True}
 
-    yield {'label': "Stadium TV",
+    yield {'label': plugin.get_string(30019),
            'path': plugin.url_for('show_playlist', playlist_id='0_n8hezta2')}
         
 def get_categories(path):

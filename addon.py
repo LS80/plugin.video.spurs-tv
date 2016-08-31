@@ -116,7 +116,7 @@ def get_page_links(soup, endpoint, **kwargs):
         form_data['field'] = input['name'].rpartition('$')[0]
 
         page, npages = [int(n) for n in PAGE_RE.search(intro.contents[0]).groups()]
-         
+
         if page > 1:
             item = {'label': u"[B]<< {} ({:d})[/B]".format(plugin.get_string(30013), page - 1),
                     'path': plugin.url_for(endpoint,
@@ -124,7 +124,7 @@ def get_page_links(soup, endpoint, **kwargs):
                                            **kwargs)
                     }
             links.append(item)
-      
+
         if page < npages:
             item = {'label': u"[B]{} ({:d}) >>[/B]".format(plugin.get_string(30012), page + 1),
                     'path': plugin.url_for(endpoint,
@@ -134,7 +134,7 @@ def get_page_links(soup, endpoint, **kwargs):
             links.append(item)
 
     return page, links
-        
+
 def video_item(entry_id, title, date_str, date_format="%d %B %Y", duration_str=None, duration=None):
     item = {'label': title,
             'thumbnail': THUMB_URL_FMT.format(entry_id),
@@ -143,21 +143,21 @@ def video_item(entry_id, title, date_str, date_format="%d %B %Y", duration_str=N
 
     video_date = utils.date_from_str(date_str, date_format)
     utils.add_item_info(item, title, video_date)
-    
+
     if duration is not None:
         item['stream_info'] = {'video': {'duration': duration}}
     elif duration_str is not None:
         minutes, seconds = duration_str.split(':')
         duration = timedelta(minutes=int(minutes), seconds=int(seconds))
         item['stream_info'] = {'video': {'duration': duration.seconds}}
-        
+
     return item
 
 def get_videos(soup, path):
     page, links = get_page_links(soup, 'show_video_list', path=path)
     for page_link in links:
         yield page_link
-    
+
     if page is None or page == 1:
         featured_video = soup.find('div', 'video')
         if featured_video:
@@ -167,13 +167,13 @@ def get_videos(soup, path):
             featured_date = featured_video.find_previous('p', 'featured-date')
             date_str = " ".join(featured_date.string.replace(u'\xa0', u' ').split()[2:5])
             yield video_item(featured_entry_id, title, date_str, duration_str=duration_str)
-        
+
     for card in soup(class_='card'):
         entry_id = ENTRY_ID_RE.search(card.a['style']).group(1)
         title = card.find('span', 'video-title').contents[0]
         duration_str = card.find('span', 'duration').string
         date_str = card.find('em', 'video-date').string
-        
+
         yield video_item(entry_id, title, date_str, duration_str=duration_str)
 
     form_data['viewstate'] = get_viewstate(soup)
@@ -218,7 +218,7 @@ def get_stadium_index():
 
     yield {'label': plugin.get_string(30019),
            'path': plugin.url_for('show_playlist', playlist_id='0_n8hezta2')}
-        
+
 def get_categories(path):
     yield {'label': "[B]{}[/B]".format(plugin.get_string(30010)),
            'path': plugin.url_for('show_video_list', path=path)}
@@ -330,7 +330,7 @@ def show_subcategories(path):
 @plugin.cached_route('/stadium')
 def show_stadium_index():
     return list(get_stadium_index())
-    
+
 @plugin.route('/videos/path/<path>')
 def show_video_list(path):
     url = urljoin(BASE_URL, path)
@@ -366,7 +366,7 @@ def search():
 def search_result(query):
     search_data = {FIELD_NAME_ROOT_FMT.format(0) + "drpTaxonomyCategoriesFilter": '144',
                    FIELD_NAME_ROOT_FMT.format(0) + "hdSearchTerm": query}
-    
+
     if 'navigate' in plugin.request.args:
         navigate = plugin.request.args['navigate'][0]
         search_data[SEARCH_NAV_FMT.format(navigate)] = ''
@@ -376,7 +376,7 @@ def search_result(query):
         soup = get_soup(SEARCH_URL)
         viewstate = get_viewstate(soup)
         update_listing = False
-        
+
     search_data['__VIEWSTATE'] = viewstate
 
     soup = get_soup(SEARCH_URL, search_data)

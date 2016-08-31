@@ -431,6 +431,11 @@ if __name__ == '__main__':
         plugin.run()
     except Exception as exc:
         if plugin.get_setting('send_error_reports', bool) or error_report_yes(exc):
-            rollbar.report_exc_info(extra_data={'url': plugin.request.url})
+            import platform
+            data = {'version': plugin.addon.getAddonInfo('version'),
+                    'platform': platform.system(),
+                    'machine': platform.machine(),
+                    'url': plugin.request.url}
+            rollbar.report_exc_info(extra_data=data)
             xbmcgui.Dialog().notification(plugin.name, plugin.get_string(30134))
         plugin.log.error(traceback.format_exc)

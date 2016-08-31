@@ -194,20 +194,21 @@ def get_search_result_videos(soup, query):
     page, links = get_page_links(soup, 'search_result', query=query)
     for page_link in links:
         yield page_link
-    
+
     for card in soup(class_='card'):
         entry_id = ENTRY_ID_RE.search(card.a['style']).group(1)
         title = card.parent.find('h3').text
         date_str = " ".join(card.parent.find('span', 'date').text.split()[-4:-1])
         yield video_item(entry_id, title, date_str, date_format="%d %b %Y")
-        
+
     form_data['viewstate'] = get_viewstate(soup)
 
 def get_stadium_cams():
     soup = get_soup(urljoin(HOST, "/new-scheme/stadium-tv/"))
-    for video in soup('div', 'video-new'):
-        title = video.find_previous('h2').get_text()
-        entry_id = json.loads(PLAYER_VARS_RE.search(video('script')[-1].string).group(1))['entry_id']
+    js = requests.get(urljoin(HOST, "/components/js/stadium-tv.js")).text
+    entry_ids = re.findall('"entry_id":\s+"(\w+)"', js)
+    for entry_id, video in zip(entry_ids, soup('div', 'video-new')):
+        title = video.find_previous('h2').get_text().strip()
         yield title, entry_id
 
 def get_stadium_index():

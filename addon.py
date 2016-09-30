@@ -135,14 +135,16 @@ def get_page_links(soup, endpoint, **kwargs):
 
     return page, links
 
-def video_item(entry_id, title, date_str, date_format="%d %B %Y", duration_str=None, duration=None):
+def video_item(entry_id, title, date_str=None, date_format="%d %B %Y", duration_str=None, duration=None):
     item = {'label': title,
             'thumbnail': THUMB_URL_FMT.format(entry_id),
             'path': plugin.url_for('play_video', entry_id=entry_id),
             'is_playable': True}
 
-    video_date = utils.date_from_str(date_str, date_format)
-    utils.add_item_info(item, title, video_date)
+    info = {'title': title}
+    if date_str is not None:
+        info['date'] = utils.date_from_str(date_str, date_format).strftime("%d.%m.%Y")
+    item['info'] = info
 
     if duration is not None:
         item['stream_info'] = {'video': {'duration': duration}}
@@ -165,8 +167,9 @@ def get_videos(soup, path):
             title = featured_video['data-title']
             duration_str = featured_video.find_next('span', 'duration').string
             featured_date = featured_video.find_previous('p', 'featured-date')
-            date_str = " ".join(featured_date.string.replace(u'\xa0', u' ').split()[2:5])
-            yield video_item(featured_entry_id, title, date_str, duration_str=duration_str)
+            if featured_date is not None:
+                date_str = ' '.join(featured_date.string.replace(u'\xa0', u' ').split()[2:5])
+                yield video_item(featured_entry_id, title, date_str, duration_str=duration_str)
 
     for card in soup(class_='card'):
         entry_id = ENTRY_ID_RE.search(card.a['style']).group(1)

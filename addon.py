@@ -48,6 +48,17 @@ MEDIA_SCHEME = "http"
 MEDIA_HOST = "open.http.mp.streamamg.com"
 MEDIA_URL_ROOT = urlunparse((MEDIA_SCHEME, MEDIA_HOST, "/p/{}/".format(PARTNER_ID), None, None, None))
 
+THUMBS = {
+    'KANE50':
+        HOST + "/uploadedImages/Segments/Testing_Area/HARRY50/KANE50-16-17.jpg",
+    'The Vault':
+        HOST + ("/uploadedImages/Shared_Assets/Images/The_Vault/"
+                "Top_20_Premier_League/the-vault-video-image.jpg"),
+    'Ledley King Testimonial':
+        HOST + ("/uploadedImages/Shared_Assets/Images/News_images/SEASON_13-14/"
+                "All_matches/1st_team_matches/Ledley_Testimonial_12_May/leds730.jpg"),
+}
+
 THUMB_URL_FMT = MEDIA_URL_ROOT + "thumbnail/entry_id/{}/height/720"
 
 HLS_URL_FMT = MEDIA_URL_ROOT + "playManifest/entryId/{}/format/applehttp"
@@ -256,7 +267,10 @@ def get_categories(path):
         else:
             plugin_path = plugin.url_for('show_video_list', path=href)
 
-        yield {'label': title, 'path': plugin_path, 'is_playable': playable}
+        yield {'label': title,
+               'path': plugin_path,
+               'is_playable': playable,
+               'thumbnail': THUMBS.get(title)}
 
 def get_subcategories(path):
     yield {'label': plugin.get_string(30014), 'path': plugin.url_for('show_video_list', path=path)}

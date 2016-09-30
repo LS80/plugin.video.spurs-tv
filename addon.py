@@ -26,6 +26,7 @@ from functools import partial
 import xml.etree.ElementTree as ET
 import traceback
 import json
+import platform
 
 from xbmcswift2 import Plugin, xbmc, xbmcgui
 from bs4 import BeautifulSoup
@@ -84,6 +85,14 @@ form_data = plugin.get_storage('form_data')
 debug = plugin.get_setting('debug', bool)
 
 
+def kodi_version():
+    query = dict(jsonrpc='2.0',
+                 method='Application.GetProperties',
+                 params=dict(properties=['version', 'name']),
+                 id=1)
+    response = json.loads(xbmc.executeJSONRPC(json.dumps(query)))
+    return response['result']['version']
+
 def log(msg):
     if debug:
         plugin.log.info(msg)
@@ -91,6 +100,14 @@ def log(msg):
 def error_report_yes(exc):
     return xbmcgui.Dialog().yesno(plugin.get_string(30130), plugin.get_string(30131),
                                   "[COLOR=red]{}[/COLOR]".format(exc), plugin.get_string(30133))
+
+def report_error():
+    data = {'version': plugin.addon.getAddonInfo('version'),
+            'platform': platform.system(),
+            'machine': platform.machine(),
+            'url': plugin.request.url,
+            'kodi': kodi_version()}
+    rollbar.report_exc_info(extra_data=data)
 
 def get_soup(url, data=None):
     if not url.endswith('/'):
@@ -448,11 +465,6 @@ if __name__ == '__main__':
         plugin.run()
     except Exception as exc:
         if plugin.get_setting('send_error_reports', bool) or error_report_yes(exc):
-            import platform
-            data = {'version': plugin.addon.getAddonInfo('version'),
-                    'platform': platform.system(),
-                    'machine': platform.machine(),
-                    'url': plugin.request.url}
-            rollbar.report_exc_info(extra_data=data)
+            report_error()
             xbmcgui.Dialog().notification(plugin.name, plugin.get_string(30134))
-        plugin.log.error(traceback.format_exc)
+        plugin.log.error(traceback.format_exc())

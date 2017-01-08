@@ -334,11 +334,6 @@ def get_youtube_video_items(generator):
 
 @plugin.route('/')
 def show_index():
-    try:
-        youtube_icon = Plugin(addon_id="plugin.video.youtube").addon.getAddonInfo('icon')
-    except:
-        youtube_icon = None
-
     categories = list(get_categories("spurs-tv"))
 
     search = {'label': "[B]{}[/B]".format(plugin.get_string(30011)),
@@ -346,9 +341,9 @@ def show_index():
     categories.insert(1, search)
 
     youtube = {'label': "[B]{}[/B]".format(plugin.get_string(30001)),
-               'thumbnail': youtube_icon,
+               'thumbnail': "https://www.youtube.com/yt/brand/media/image/YouTube-logo-light.png",
                'path': plugin.url_for('show_youtube_index')}
-    categories.append(youtube)
+    categories.insert(2, youtube)
 
     return categories
 

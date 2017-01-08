@@ -21,6 +21,7 @@
 import os
 import re
 from urlparse import urlparse, urlunparse, urljoin
+from urllib import urlencode
 from datetime import timedelta
 from functools import partial
 import xml.etree.ElementTree as ET
@@ -266,7 +267,7 @@ def get_categories(path):
             plugin_path = plugin.url_for('show_playlist', playlist_id='0_32nxk7s7')
         elif title == "Live Audio Commentary":
             playable = True
-            plugin_path = plugin.url_for('play_video', entry_id='0_7nqzdt52')
+            plugin_path = plugin.url_for('play_live_audio_commentary')
         elif 'children' in a.parent['class']:
             plugin_path = plugin.url_for('show_subcategories', path=href)
         else:
@@ -286,6 +287,17 @@ def get_subcategories(path):
         yield {'label': li.a['title'],
                'path': plugin.url_for('show_video_list', path=li.a['href'].strip('/'))}
 
+def live_audio_commentary_id():
+    url = urljoin(HOST, "audio-commentary/live/")
+    RE_EMBED = re.compile(r'kWidget\.embed\((.*?)\)', re.MULTILINE|re.DOTALL)
+    video_vars = json.loads(RE_EMBED.search(requests.get(url).text).group(1))
+    return video_vars['entry_id']
+
+def is_live(entry_id):
+    qs = urlencode(dict(id=entry_id, service='liveStream', action='islive',
+                        protocol='applehttp', partnerId=PARTNER_ID, format=1))
+    url = urlunparse((MEDIA_SCHEME, MEDIA_HOST, "/api_v3/index.php", None, qs, None))
+    return requests.get(url).text == 'true'
 
 def get_youtube_index():
     for playlist, stringid in (("latest", 30010),
@@ -356,6 +368,16 @@ def show_stadium_index():
 def show_stadium_video_gallery():
     return (video_item(entry_id, title)
             for title, entry_id in new_stadium.get_video_gallery())
+
+@plugin.route('/live-audio-commentary')
+def play_live_audio_commentary():
+    entry_id = live_audio_commentary_id()
+    if is_live(entry_id):
+        url = get_media_url(entry_id)
+    else:
+        xbmcgui.Dialog().ok('Live Audio Commentary', plugin.get_string(30050))
+        url = None
+    return plugin.set_resolved_url(url)
 
 @plugin.route('/videos/path/<path>')
 def show_video_list(path):

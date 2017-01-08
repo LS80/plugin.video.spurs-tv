@@ -64,6 +64,13 @@ msgctxt "#30019"
 msgid "Video Gallery"
 msgstr ""
 
+#. Message dialog for off line audio commentary
+msgctxt "#30050"
+msgid ""
+"There is no live audio commentary available at this time. "
+"Please try again 5 minutes before kick-off."
+msgstr ""
+
 #. Settings category for advanced options
 msgctxt "#30100"
 msgid "Advanced"

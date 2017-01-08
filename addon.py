@@ -36,6 +36,7 @@ import rollbar
 
 from resources.lib import utils
 from resources.lib import youtube
+from resources.lib import new_stadium
 
 HOST = "http://www.tottenhamhotspur.com"
 BASE_URL = HOST
@@ -234,22 +235,12 @@ def get_search_result_videos(soup, query):
 
     form_data['viewstate'] = get_viewstate(soup)
 
-def get_stadium_cams():
-    soup = get_soup(urljoin(HOST, "/new-scheme/stadium-tv/"))
-    js = requests.get(urljoin(HOST, "/components/js/stadium-tv.js")).text
-    entry_ids = re.findall('"entry_id":\s+"(\w+)"', js)
-    for entry_id, video in zip(entry_ids, soup('div', 'video-new')):
-        title = video.find_previous('h2').get_text().strip()
-        yield title, entry_id
-
 def get_stadium_index():
-    for title, entry_id in get_stadium_cams():
-        yield {'label': title,
-               'path': plugin.url_for('play_video', entry_id=entry_id),
-               'is_playable': True}
+    for title, entry_id in new_stadium.get_cams():
+        yield video_item(entry_id, title)
 
     yield {'label': plugin.get_string(30019),
-           'path': plugin.url_for('show_playlist', playlist_id='0_n8hezta2')}
+           'path': plugin.url_for('show_stadium_video_gallery')}
 
 def get_categories(path):
     yield {'label': "[B]{}[/B]".format(plugin.get_string(30010)),
@@ -363,6 +354,11 @@ def show_subcategories(path):
 @plugin.cached_route('/stadium')
 def show_stadium_index():
     return list(get_stadium_index())
+
+@plugin.route('/stadium/video-gallery')
+def show_stadium_video_gallery():
+    return (video_item(entry_id, title)
+            for title, entry_id in new_stadium.get_video_gallery())
 
 @plugin.route('/videos/path/<path>')
 def show_video_list(path):

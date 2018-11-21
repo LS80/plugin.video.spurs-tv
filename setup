@@ -1,0 +1,10 @@
+#!/bin/sh -e
+
+export PIPENV_SKIP_LOCK=True
+
+# Enable kodiswift interactive to work
+mkdir -p resources/language/English
+ln -s ../resource.language.en_gb/strings.po resources/language/English/strings.po
+
+pip install pipenv
+pipenv install

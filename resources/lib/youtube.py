@@ -5,7 +5,7 @@ import json
 import requests
 from urlparse import urljoin, urlunparse
 
-import utils
+from . import utils
 
 SCHEME = "https"
 HOST = "www.googleapis.com"

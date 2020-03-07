@@ -44,9 +44,6 @@ msgctxt "#30017"
 msgid "New Stadium"
 msgstr ""
 
-#. List item to show videos from the stadium video gallery
-msgctxt "#30019"
-msgid "Video Gallery"
 msgstr ""
 
 #. Settings category for advanced options

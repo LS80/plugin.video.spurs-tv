@@ -190,7 +190,7 @@ def show_index():
 
     yield {
         'label': plugin.get_string(30017),
-        'path': plugin.url_for('show_stadium_index'),
+        'path': plugin.url_for('show_stadium_video_gallery'),
         'thumbnail': STADIUM_THUMB
     }
 
@@ -211,11 +211,8 @@ def show_videos():
     for video in api.videos():
         yield video_item(video.entry_id, video.title)
 
-@plugin.cached_route('/stadium')
-def show_stadium_index():
-    return list(get_stadium_index())
 
-@plugin.route('/stadium/video-gallery')
+@plugin.cached_route('/stadium')
 def show_stadium_video_gallery():
     return (video_item(entry_id, title)
             for title, entry_id in new_stadium.get_video_gallery())

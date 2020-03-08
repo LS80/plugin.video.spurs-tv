@@ -15,8 +15,13 @@ URL = "https://www.tottenhamhotspur.com/trendinggrid/loadmore"
 Video = namedtuple('Video', 'entry_id title caption thumbnail')
 
 
-def videos():
-    response = requests.get(URL, dict(tagIds=56552, page=1, itemsPerGrid=1000)).text
+def image_url(path, height=720):
+    return 'https://tot-tmp.azureedge.net/media/{0}?height={1}'.format(path, height)
+
+
+def videos(tag_id=56552, page=1, items=100):
+    response = requests.get(
+        URL, dict(tagIds=tag_id, fromPage=page-1, toPage=page, itemsPerGrid=items)).text
     data = re.search(VIDEO_DATA_RE, response, re.DOTALL).group(1)
     modules = json.loads(data)['data']['modules']
     for module in modules:

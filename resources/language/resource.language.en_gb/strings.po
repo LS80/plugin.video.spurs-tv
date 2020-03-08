@@ -21,12 +21,14 @@ msgstr ""
 
 #. Index page list item to show latest Spurs TV videos
 msgctxt "#30010"
-msgid "Latest"
+msgid "All Videos"
 msgstr ""
 
 #. Index page list item to search for videos
 msgctxt "#30011"
 msgid "Search"
+msgstr ""
+
 msgstr ""
 
 #. List item to show the most popular YouTube videos
@@ -44,6 +46,9 @@ msgctxt "#30017"
 msgid "New Stadium"
 msgstr ""
 
+#. Index page list item to show match highlights
+msgctxt "#30020"
+msgid "Match Highlights / Replays"
 msgstr ""
 
 #. Settings category for advanced options

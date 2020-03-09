@@ -29,6 +29,14 @@ msgctxt "#30011"
 msgid "Search"
 msgstr ""
 
+#. List item to go to the next page of videos
+msgctxt "#30012"
+msgid "Next Page"
+msgstr ""
+
+#. List item to go to the previous page of videos
+msgctxt "#30013"
+msgid "Previous Page"
 msgstr ""
 
 #. List item to show the most popular YouTube videos

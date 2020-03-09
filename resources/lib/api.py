@@ -19,11 +19,16 @@ def image_url(path, height=720):
     return 'https://tot-tmp.azureedge.net/media/{0}?height={1}'.format(path, height)
 
 
-def videos(tag_id=56552, page=1, items=100):
+def videos(tag_id, page=1, items=100):
     response = requests.get(
         URL, dict(tagIds=tag_id, fromPage=page-1, toPage=page, itemsPerGrid=items)).text
-    data = re.search(VIDEO_DATA_RE, response, re.DOTALL).group(1)
-    modules = json.loads(data)['data']['modules']
+    data = json.loads(re.search(VIDEO_DATA_RE, response,
+                                re.DOTALL).group(1))['data']
+    end = data['loadMoreLink'] is None
+    return _videos(data['modules']), end
+
+
+def _videos(modules):
     for module in modules:
         article = module['data']['article']
         video_data = article['media']

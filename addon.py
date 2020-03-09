@@ -189,13 +189,13 @@ def show_index():
 
     yield {
         'label': plugin.get_string(30010),
-        'path': plugin.url_for('show_all_videos'),
+        'path': plugin.url_for('show_videos_page', tag_id=56552, page=1),
         'thumbnail': plugin.addon.getAddonInfo('icon')
     }
 
     yield {
         'label': plugin.get_string(30020),
-        'path': plugin.url_for('show_videos', tag_id=45833),
+        'path': plugin.url_for('show_videos_page', tag_id=45833, page=1),
         'thumbnail': api.image_url('23675/match-highlights.jpg')
     }
 
@@ -224,16 +224,35 @@ def show_index():
         'thumbnail': os.path.join(image_path, 'YouTube-logo-light.png')
     }
 
-@plugin.route('/videos')
-def show_all_videos():
-    for video in api.videos():
+
+def video_page_items(tag_id, page):
+    page = int(page)
+    videos, end = api.videos(tag_id, page=page, items=12)
+
+    if page > 1:
+        yield {
+            'label': u'[B]<< {} ({:d})[/B]'.format(plugin.get_string(30013), page - 1),
+            'path': plugin.url_for('show_videos_page', tag_id=tag_id, page=page - 1)
+        }
+    if not end:
+        yield {
+            'label': u'[B]{} ({:d}) >> [/B]'.format(plugin.get_string(30012), page + 1),
+            'path': plugin.url_for('show_videos_page', tag_id=tag_id, page=page + 1)
+        }
+
+    for video in videos:
         yield video_item(video.entry_id, video.title)
+
+
+@plugin.route('/tag/<tag_id>/page/<page>')
+def show_videos_page(tag_id, page):
+    return plugin.finish(video_page_items(tag_id, page), update_listing=(int(page) > 1))
 
 
 @plugin.route('/tag/<tag_id>')
 def show_videos(tag_id):
-    return (video_item(video.entry_id, video.title)
-            for video in api.videos(tag_id=tag_id))
+    videos, _ = api.videos(tag_id=tag_id)
+    return (video_item(video.entry_id, video.title) for video in videos)
 
 
 @plugin.route('/stadium')

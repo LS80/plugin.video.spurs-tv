@@ -20,8 +20,7 @@
 
 import os
 import re
-from urlparse import urlparse, urlunparse, urljoin
-from urllib import urlencode
+from six.moves.urllib.parse import urlparse, urlunparse, urljoin, urlencode
 from datetime import timedelta
 from functools import partial
 import xml.etree.ElementTree as ET
@@ -29,7 +28,7 @@ import traceback
 import json
 import platform
 
-from kodiswift import Plugin, xbmc, xbmcgui
+from xbmcswift2 import Plugin, xbmc, xbmcgui
 from bs4 import BeautifulSoup
 import requests
 import livestreamer
@@ -89,18 +88,6 @@ def kodi_version():
 def log(msg):
     if debug:
         plugin.log.info(msg)
-
-def error_report_yes(exc):
-    return xbmcgui.Dialog().yesno(plugin.get_string(30130), plugin.get_string(30131),
-                                  "[COLOR=red]{}[/COLOR]".format(exc), plugin.get_string(30133))
-
-def report_error():
-    data = {'version': plugin.addon.getAddonInfo('version'),
-            'platform': platform.system(),
-            'machine': platform.machine(),
-            'url': plugin.request.url,
-            'kodi': kodi_version()}
-    rollbar.report_exc_info(extra_data=data)
 
 def image_path():
     return os.path.join(plugin.addon.getAddonInfo('path'), 'resources', 'images')
@@ -315,11 +302,14 @@ def youtube_search_result(term):
 
 
 if __name__ == '__main__':
-    rollbar.init('45541e2cb1e24f95b9c6311c2e931a11')
+    import rollbar.kodi
     try:
         plugin.run()
     except Exception as exc:
-        if plugin.get_setting('send_error_reports', bool) or error_report_yes(exc):
-            report_error()
-            xbmcgui.Dialog().notification(plugin.name, plugin.get_string(30134))
         plugin.log.error(traceback.format_exc())
+        if rollbar.kodi.error_report_requested(exc):
+            rollbar.kodi.report_error(
+                access_token='45541e2cb1e24f95b9c6311c2e931a11',
+                version=plugin.addon.getAddonInfo('version'),
+                url=plugin.request.url
+            )

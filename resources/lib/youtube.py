@@ -4,11 +4,8 @@ import base64
 import os
 import json
 import requests
-from urlparse import urljoin, urlunparse
-try:
-    from HTMLParser import HTMLParser
-except ImportError:
-    from html.parser import HTMLParser
+from six.moves.urllib.parse import urljoin, urlunparse
+from six.moves import html_parser
 
 from . import utils
 
@@ -33,7 +30,7 @@ def _get_items(resource, key='channel', id=CHANNEL_ID, max_results=50, order='da
 
     for item in response['items']:
         snippet = item['snippet']
-        title = HTMLParser().unescape(snippet['title'])
+        title = html_parser.HTMLParser().unescape(snippet['title'])
         if title == "Private video":
             continue
         try:

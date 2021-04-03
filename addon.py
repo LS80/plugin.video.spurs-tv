@@ -62,7 +62,8 @@ COMPETITIONS = [
     ('Champions League', 44679,
      '1093/ticket-details-for-our-ucl-away-matches-updated-with-real-madrid-champions_league_trophy730.jpg'),
     ('FA Cup', 43996, '2654/facup_draw730a.jpg'),
-    ('Carabao Cup', 44729, '1203/carabao-cup-spurs-v-barnsley-ticket-news-carabao_cup730.jpg')
+    ('Carabao Cup', 44729, '1203/carabao-cup-spurs-v-barnsley-ticket-news-carabao_cup730.jpg'),
+    ('Europa League', 47605, '34094/stadium-europa-league-1.jpg')
 ]
 
 

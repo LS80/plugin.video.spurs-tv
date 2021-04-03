@@ -49,11 +49,6 @@ msgctxt "#30016"
 msgid "Playlists"
 msgstr ""
 
-#. List item to show content related to the new stadium build
-msgctxt "#30017"
-msgid "New Stadium"
-msgstr ""
-
 #. Index page list item to show match highlights
 msgctxt "#30020"
 msgid "Match Highlights / Replays"

@@ -37,7 +37,6 @@ import rollbar
 
 from resources.lib import utils
 from resources.lib import youtube
-from resources.lib import new_stadium
 from resources.lib import api
 
 HOST = "http://www.tottenhamhotspur.com"
@@ -123,16 +122,6 @@ def get_playlist_videos(playlist_id):
         yield video_item(entry_id, title, date_str, date_format="%Y-%m-%d",
                          duration=entry.find('duration').text)
 
-def get_stadium_index():
-    for title, youtube_id in new_stadium.get_cams():
-        yield {'label': title,
-               'thumbnail': 'https://i.ytimg.com/vi/{}/sddefault_live.jpg'.format(youtube_id),
-               'info': {'title': title},
-               'path': "plugin://plugin.video.youtube/play/?video_id={}".format(youtube_id),
-               'is_playable': True}
-
-    yield {'label': plugin.get_string(30019),
-           'path': plugin.url_for('show_stadium_video_gallery')}
 
 def get_youtube_index():
     for playlist, stringid in (("latest", 30010),
@@ -209,12 +198,6 @@ def show_index():
         }
 
     yield {
-        'label': plugin.get_string(30017),
-        'path': plugin.url_for('show_stadium_video_gallery'),
-        'thumbnail': api.image_url('4363/newstadium-concept-internalbowl-eveninggamewithfans.jpg')
-    }
-
-    yield {
         'label': "The Vault",
         'path': plugin.url_for('show_playlist', playlist_id='0_32nxk7s7'),
         'thumbnail': os.path.join(image_path(), 'the-vault-video-image.jpg')
@@ -262,11 +245,6 @@ def show_videos(tag_id):
     videos, _ = api.videos(tag_id=tag_id)
     return (video_item(video.entry_id, video.title) for video in videos)
 
-
-@plugin.route('/stadium')
-def show_stadium_video_gallery():
-    return (video_item(entry_id, title)
-            for title, entry_id in new_stadium.get_video_gallery())
 
 @plugin.route('/playlist/<playlist_id>')
 def show_playlist(playlist_id):

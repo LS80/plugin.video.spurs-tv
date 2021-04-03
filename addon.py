@@ -96,6 +96,9 @@ def report_error():
             'kodi': kodi_version()}
     rollbar.report_exc_info(extra_data=data)
 
+def image_path():
+    return os.path.join(plugin.addon.getAddonInfo('path'), 'resources', 'images')
+
 def get_media_url(entry_id):
     hls_url = HLS_URL_FMT.format(entry_id)
     livestreamer_url = 'hlsvariant://' + hls_url
@@ -138,7 +141,8 @@ def get_youtube_index():
                'path': plugin.url_for('show_youtube_list', playlist=playlist)}
 
     yield {'label': plugin.get_string(30011),
-           'path': plugin.url_for('youtube_search')}
+           'path': plugin.url_for('youtube_search'),
+           'thumbnail': os.path.join(image_path(), 'search.png')}
 
     yield {'label': plugin.get_string(30016),
            'path': plugin.url_for('show_youtube_playlists')}
@@ -185,8 +189,6 @@ def video_item(entry_id, title, date_str=None, date_format="%d %B %Y", duration_
 
 @plugin.route('/')
 def show_index():
-    image_path = os.path.join(plugin.addon.getAddonInfo('path'), 'resources', 'images')
-
     yield {
         'label': plugin.get_string(30010),
         'path': plugin.url_for('show_videos_page', tag_id=56552, page=1),
@@ -215,13 +217,19 @@ def show_index():
     yield {
         'label': "The Vault",
         'path': plugin.url_for('show_playlist', playlist_id='0_32nxk7s7'),
-        'thumbnail': os.path.join(image_path, 'the-vault-video-image.jpg')
+        'thumbnail': os.path.join(image_path(), 'the-vault-video-image.jpg')
+    }
+
+    yield {
+        'label': plugin.get_string(30011),
+        'path': plugin.url_for('search'),
+        'thumbnail': os.path.join(image_path(), 'search.png')
     }
 
     yield {
         'label': plugin.get_string(30001),
         'path': plugin.url_for('show_youtube_index'),
-        'thumbnail': os.path.join(image_path, 'YouTube-logo-light.png')
+        'thumbnail': os.path.join(image_path(), 'YouTube-logo-light.png')
     }
 
 
@@ -269,6 +277,20 @@ def show_playlist(playlist_id):
 def play_video(entry_id):
     return plugin.set_resolved_url(get_media_url(entry_id))
 
+
+@plugin.route('/search')
+def search():
+    term = plugin.keyboard(heading=plugin.get_string(30011))
+    if term:
+        url = plugin.url_for('show_search_results', term=term)
+        plugin.redirect(url)
+
+
+@plugin.route('/search/<term>')
+def show_search_results(term):
+    return (video_item(video.entry_id, video.title) for video in api.search_results(term))
+
+
 @plugin.cached_route('/youtube')
 def show_youtube_index():
     return list(get_youtube_index())
@@ -290,16 +312,18 @@ def show_youtube_list(playlist="latest"):
     return plugin.finish(get_youtube_video_items(generator),
                          sort_methods=['unsorted', 'date', 'title'])
 
+
 @plugin.route('/youtube/search')
 def youtube_search():
-    query = plugin.keyboard(heading="Search")
-    if query:
-        url = plugin.url_for('youtube_search_result', query=query)
+    term = plugin.keyboard(heading=plugin.get_string(30011))
+    if term:
+        url = plugin.url_for('youtube_search_result', term=term)
         plugin.redirect(url)
 
-@plugin.route('/youtube/search/<query>')
-def youtube_search_result(query):
-    generator = partial(youtube.get_search_results, query)
+
+@plugin.route('/youtube/search/<term>')
+def youtube_search_result(term):
+    generator = partial(youtube.get_search_results, term)
     return plugin.finish(get_youtube_video_items(generator),
                          sort_methods=['unsorted', 'date', 'title'])
 

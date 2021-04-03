@@ -66,6 +66,12 @@ COMPETITIONS = [
     ('Europa League', 47605, '34094/stadium-europa-league-1.jpg')
 ]
 
+CATEGORIES = [
+    (30020, 45833, '23675/match-highlights.jpg'),
+    (30021, 4850, '32499/firstteam_premierleague_manutd_harrykane_2.jpg'),
+    (30022, 42164, '33570/team-huddle-1b.jpg'),
+]
+
 
 plugin = Plugin()
 
@@ -185,11 +191,12 @@ def show_index():
         'thumbnail': plugin.addon.getAddonInfo('icon')
     }
 
-    yield {
-        'label': plugin.get_string(30020),
-        'path': plugin.url_for('show_videos_page', tag_id=45833, page=1),
-        'thumbnail': api.image_url('23675/match-highlights.jpg')
-    }
+    for category_name_id, tag_id, thumbnail_path in CATEGORIES:
+        yield {
+            'label': plugin.get_string(category_name_id),
+            'path': plugin.url_for('show_videos', tag_id=tag_id),
+            'thumbnail': api.image_url(thumbnail_path)
+        }
 
     for competition, tag_id, thumbnail_path in COMPETITIONS:
         yield {

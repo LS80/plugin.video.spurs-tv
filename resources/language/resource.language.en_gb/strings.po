@@ -54,6 +54,16 @@ msgctxt "#30020"
 msgid "Match Highlights / Replays"
 msgstr ""
 
+#. Index page list item to show men's first team videos
+msgctxt "#30021"
+msgid "Men's First Team"
+msgstr ""
+
+#. Index page list item to show women's first team videos
+msgctxt "#30022"
+msgid "Women's First Team"
+msgstr ""
+
 #. Settings category for advanced options
 msgctxt "#30100"
 msgid "Advanced"

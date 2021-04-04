@@ -8,7 +8,6 @@ name = "pypi"
 [packages]
 kodiswift = "*"
 requests = "*"
-bs4 = "*"
 livestreamer = "*"
 rollbar = "*"
 

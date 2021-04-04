@@ -29,7 +29,6 @@ import json
 import platform
 
 from xbmcswift2 import Plugin, xbmc, xbmcgui
-from bs4 import BeautifulSoup
 import requests
 import livestreamer
 import rollbar

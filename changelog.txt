@@ -1,3 +1,10 @@
+v2.17.0 (2021-04-04)
+ - Compatible with Kodi 19 (Matrix)
+ - Added search
+ - Added separate Men's and Womens's team categories
+ - Added Europa League category
+ - Removed the broken New Stadium category
+
 v2.16.0 (2020-03-09)
  - Added pagination to improve loading speed
  - Added a category for each competition

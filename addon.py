@@ -306,7 +306,7 @@ if __name__ == '__main__':
         plugin.run()
     except Exception as exc:
         plugin.log.error(traceback.format_exc())
-        if rollbar.kodi.error_report_requested(exc):
+        if plugin.get_setting('send_error_reports', bool) or rollbar.kodi.error_report_requested(exc):
             rollbar.kodi.report_error(
                 access_token='45541e2cb1e24f95b9c6311c2e931a11',
                 version=plugin.addon.getAddonInfo('version'),

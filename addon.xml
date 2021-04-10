@@ -21,8 +21,8 @@
     <source>https://github.com/LS80/plugin.video.spurs-tv</source>
     <license>GPL-3.0-or-later</license>
     <assets>
-      <icon>resources/images/icon.png</icon>
-      <fanart>resources/images/fanart.jpg</fanart>
+      <icon>icon.png</icon>
+      <fanart>fanart.jpg</fanart>
     </assets>
     <news>
       Added pagination

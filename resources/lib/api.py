@@ -24,10 +24,10 @@ def search_results(term, max_results=10):
     num_results = 0
     while num_results < max_results:
         data = requests.get(URL_FMT.format('searchpage'), dict(searchTerm=term, page=page)).json()
-        search_results = data['searchResults']
-        if search_results['loadMoreLink'] is None:
+        search_result_data = data['searchResults']
+        if search_result_data['loadMoreLink'] is None:
             break
-        for item in _media_items(search_results['results']):
+        for item in _media_items(search_result_data['results']):
             num_results += 1
             if num_results <= max_results:
                 yield item
@@ -67,4 +67,3 @@ def _thumbnail(video_data):
             return video_data.get(key) and video_data[key]['smallUrl']
         except KeyError:
             continue
-

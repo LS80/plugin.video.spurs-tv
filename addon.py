@@ -7,33 +7,29 @@
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation, either version 3 of the License, or
 #  (at your option) any later version.
-# 
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##########################################################################
 
 import os
-import re
-from six.moves.urllib.parse import urlparse, urlunparse, urljoin, urlencode
+from urllib.parse import urlunparse, urljoin
 from datetime import timedelta
 from functools import partial
 import xml.etree.ElementTree as ET
 import traceback
 import json
-import platform
 
-from xbmcswift2 import Plugin, xbmc, xbmcgui
+from xbmcswift2 import Plugin, xbmc
 import requests
 import livestreamer
-import rollbar
 
-from resources.lib import utils
 from resources.lib import youtube
 from resources.lib import api
 
@@ -156,7 +152,7 @@ def video_item(entry_id, title, date_str=None, date_format="%d %B %Y", duration_
 
     info = {'title': title}
     if date_str is not None:
-        info['date'] = utils.date_from_str(date_str, date_format).strftime("%d.%m.%Y")
+        info['date'] = datetime.strptime(date_str, date_format).strftime('%d.%m.%Y')
     item['info'] = info
 
     if duration is not None:

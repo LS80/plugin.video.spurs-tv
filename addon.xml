@@ -19,7 +19,7 @@
     <website>https://www.tottenhamhotspur.com/tags/spurstv/</website>
     <forum>https://forum.kodi.tv/showthread.php?tid=235234</forum>
     <source>https://github.com/LS80/plugin.video.spurs-tv</source>
-    <license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
+    <license>GPL-3.0-or-later</license>
     <assets>
       <icon>resources/images/icon.png</icon>
       <fanart>resources/images/fanart.jpg</fanart>
